@@ -10,6 +10,10 @@ end
 if getgenv().Active then return end
 getgenv().Active = true
 
+local function CreateTab(Name, Icon)
+    return Window:CreateTab(Name, Icon)
+end
+
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
 local Window = Rayfield:CreateWindow({
@@ -46,11 +50,11 @@ local Window = Rayfield:CreateWindow({
    }
 })
 
-local MainTab = Window:CreateTab("Main", 4483362458)
-local OtherTab = Window:CreateTab("Other", 4483362458)
-local ItemsTab = Window:CreateTab("Items", 4483362458)
-local GardenTab = Window:CreateTab("Garden", 15555104643)
-local MinigamesTab = Window:CreateTab("Minigames", 4483362458)
+local MainTab = CreateTab("Main", 4483362458)
+local OtherTab = CreateTab("Other", 4483362458)
+local ItemsTab = CreateTab("Items", 4483362458)
+local GardenTab = CreateTab("Garden", 15555104643)
+local MinigamesTab = CreateTab("Minigames", 4483362458)
 
 local orb = require(game:GetService("ReplicatedStorage").Library.Client.OrbCmds.Orb)
 orb.DefaultPickupDistance = math.huge
