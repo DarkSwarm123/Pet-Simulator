@@ -581,6 +581,11 @@ local function GetPetTypeString(pt)
     else return "NORMAL" end
 end
 
+local Save = require(game:GetService("ReplicatedStorage")
+    :WaitForChild("Library")
+    :WaitForChild("Client")
+    :WaitForChild("Save"))
+
 local AutoDaycare = false
 
 local DaycareToggle = MainTab:CreateToggle({
@@ -599,40 +604,47 @@ local DaycareToggle = MainTab:CreateToggle({
             while AutoDaycare do
                 pcall(function()
 
-                    local activeBefore = Save.Get().DaycareActive or {}
+                    -- 🔵 1. SNAPSHOT (to jest jedyne źródło prawdy)
+                    local snapshot = Save.Get().DaycareActive or {}
+                    local inventory = Save.Get().Inventory.Pet or {}
                     local maxSlots = DaycareCmds.GetMaxSlots()
 
-                    -- CHECK CLAIM
+                    -- 🔵 2. CHECK CLAIM na snapshotcie
                     local needsClaim = false
 
-                    for uuid, _ in pairs(activeBefore) do
+                    for uuid, _ in pairs(snapshot) do
                         if DaycareCmds.ComputeRemainingTime(uuid) <= 0 then
                             needsClaim = true
                             break
                         end
                     end
 
-                     Wait(10)
-                        
-                    -- CLAIM PHASE
+                    -- 🔵 3. CLAIM (jeśli trzeba)
                     if needsClaim then
                         Network["Daycare: Claim"]:InvokeServer()
                         task.wait(1)
                     end
 
-                    -- REFRESH STATE
-                    local activeAfter = Save.Get().DaycareActive or {}
-
-                    -- BUILD REENROLL (NIE BLOKUJ NA EMPTY TABLE)
+                    -- 🔵 4. REENROLL NA SNAPSHOT (NIE LIVE STATE)
                     local toReenroll = {}
 
-                    for uuid, _ in pairs(activeBefore) do
-                        if Save.Get().Inventory.Pet[uuid] then
-                            toReenroll[uuid] = maxSlots
+                    for _, data in pairs(snapshot) do
+                        local pet = data and data.Pet
+
+                        if pet then
+                            for uuid, invPet in pairs(inventory) do
+                                if invPet.id == pet.id
+                                and invPet.pt == pet.pt
+                                and (invPet.sh or false) == (pet.sh or false) then
+
+                                    toReenroll[uuid] = maxSlots
+                                    break
+                                end
+                            end
                         end
                     end
 
-                    -- ENROLL PHASE
+                    -- 🔵 5. SEND
                     if next(toReenroll) then
                         Network["Daycare: Enroll"]:InvokeServer(toReenroll)
                     end
