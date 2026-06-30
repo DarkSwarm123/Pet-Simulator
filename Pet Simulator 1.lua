@@ -280,7 +280,8 @@ local Button = SettingsTab:CreateButton({
   end,
 })
 
-local function deletePet(id)                    workspace.__REMOTES.Game.Inventory:InvokeServer("Delete", id)
+local function deletePet(id)                    
+	workspace.__REMOTES.Game.Inventory:InvokeServer("Delete", id)
 end
 
 local Button = SettingsTab:CreateButton({
@@ -573,7 +574,8 @@ SettingsTab:CreateToggle({
 if allow then
         if Value then
             task.spawn(function()
-                while AutoDeletersRunning do                    DeleteOtherUnwantedPets()
+                while AutoDeletersRunning do                    
+					DeleteOtherUnwantedPets()
                     task.wait(2)
                 end
             end)
