@@ -1,4 +1,11 @@
 repeat task.wait() until game:IsLoaded()
+
+if game.GameId == 619296292 then
+   print("Welcome")
+else
+   warn("This is not Pet Simulator 99")
+end
+
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
 local Window = Rayfield:CreateWindow({
