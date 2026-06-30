@@ -588,43 +588,55 @@ local DaycareToggle = MainTab:CreateToggle({
     CurrentValue = false,
     Flag = "AutoDaycare",
     Callback = function(Value)
+
         AutoDaycare = Value
+
         task.spawn(function()
             local ReplicatedStorage = game:GetService("ReplicatedStorage")
             local Network = ReplicatedStorage.Network
-            local DaycareCmds = require(ReplicatedStorage.Library.Client.DaycareCmds)            
+            local DaycareCmds = require(ReplicatedStorage.Library.Client.DaycareCmds)
+
             while AutoDaycare do
                 pcall(function()
-                    local active = Save.Get().DaycareActive or {}
-                    local readyToClaim = false
 
-                    for uuid, _ in pairs(active) do
+                    local activeBefore = Save.Get().DaycareActive or {}
+                    local maxSlots = DaycareCmds.GetMaxSlots()
+
+                    -- CHECK CLAIM
+                    local needsClaim = false
+
+                    for uuid, _ in pairs(activeBefore) do
                         if DaycareCmds.ComputeRemainingTime(uuid) <= 0 then
-                            readyToClaim = true
+                            needsClaim = true
                             break
                         end
                     end
 
-                    if readyToClaim or next(active) == nil then
+                    -- CLAIM PHASE
+                    if needsClaim then
                         Network["Daycare: Claim"]:InvokeServer()
                         task.wait(1)
-                        local maxSlots = DaycareCmds.GetMaxSlots()
-                        local selectedPet = "73a201f76aa34d6ab46e2c3372fd108c"
-                        local petData = Save.Get().Inventory.Pet[selectedPet]
-                        local name = petData and petData.id or "?"
-                        local typeStr = petData and GetPetTypeString(petData.pt or 0) or "?"
-
-                        print("📤 Wysłano do Daycare:", maxSlots .. "x", name, "(" .. typeStr .. ")")
-
-                        local args = {
-                            [1] = {
-                                [selectedPet] = maxSlots
-                            }
-                        }
-
-                        Network["Daycare: Enroll"]:InvokeServer(unpack(args))
                     end
+
+                    -- REFRESH STATE
+                    local activeAfter = Save.Get().DaycareActive or {}
+
+                    -- BUILD REENROLL (NIE BLOKUJ NA EMPTY TABLE)
+                    local toReenroll = {}
+
+                    for uuid, _ in pairs(activeBefore) do
+                        if Save.Get().Inventory.Pet[uuid] then
+                            toReenroll[uuid] = maxSlots
+                        end
+                    end
+
+                    -- ENROLL PHASE
+                    if next(toReenroll) then
+                        Network["Daycare: Enroll"]:InvokeServer(toReenroll)
+                    end
+
                 end)
+
                 task.wait(1)
             end
         end)
