@@ -902,3 +902,7 @@ game:GetService("Players").LocalPlayer.Idled:Connect(function()
 end)
 
 Rayfield:LoadConfiguration()
+
+task.delay(10, function()
+    getgenv().Active = false
+end)
