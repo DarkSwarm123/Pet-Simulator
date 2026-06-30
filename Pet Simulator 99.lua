@@ -10,12 +10,26 @@ end
 if getgenv().Active then return end
 getgenv().Active = true
 
-local function CreateTab(Name, Icon)
-    return Window:CreateTab(Name, Icon)
-end
-
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 print("Rayfield Loaded")
+
+local function Wait(x)
+    local startTick = tick()
+    local startClock = os.clock()
+
+    for i = 1, x do
+        task.wait()
+    end
+
+    getgenv().logTime = getgenv().logTime or false
+
+    if getgenv().logTime then
+        local totalTick = tick() - startTick
+        local totalClock = os.clock() - startClock
+        print("Wait(" .. x .. ") lasted " .. totalTick .. " seconds (real-time).")
+        print("CPU time: " .. totalClock .. " seconds.")
+    end
+end
 
 local Window = Rayfield:CreateWindow({
    Name = "Pet Simulator 99 Script",
@@ -50,6 +64,12 @@ local Window = Rayfield:CreateWindow({
       Key = {"Hello"} 
    }
 })
+
+Wait(30)
+
+local function CreateTab(Name, Icon)
+    return Window:CreateTab(Name, Icon)
+end
 
 local MainTab = CreateTab("Main", 4483362458)
 local OtherTab = CreateTab("Other", 4483362458)
@@ -156,24 +176,6 @@ MainTab:CreateToggle({
         end
     end
 })
-
-local function Wait(x)
-    local startTick = tick()
-    local startClock = os.clock()
-
-    for i = 1, x do
-        task.wait()
-    end
-
-    getgenv().logTime = getgenv().logTime or false
-
-    if getgenv().logTime then
-        local totalTick = tick() - startTick
-        local totalClock = os.clock() - startClock
-        print("Wait(" .. x .. ") lasted " .. totalTick .. " seconds (real-time).")
-        print("CPU time: " .. totalClock .. " seconds.")
-    end
-end
 
 local screenGui = Instance.new("ScreenGui")
 screenGui.Name = "RenderToggleGui"
