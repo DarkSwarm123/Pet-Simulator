@@ -15,7 +15,7 @@ local function CreateTab(Name, Icon)
 end
 
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
-
+print("Rayfield Loaded")
 local Window = Rayfield:CreateWindow({
    Name = "Pet Simulator 99 Script",
    Icon = 0, 
