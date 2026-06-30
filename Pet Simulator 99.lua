@@ -89,7 +89,7 @@ local function Hatch()
     local worldFolder = workspace.__THINGS.ZoneEggs:FindFirstChild("World" .. worldNum)
     if not worldFolder then
         return NotificationCmds.Message.Bottom({
-            Message = "❌ Brak folderu świata w workspace!",
+            Message = "❌ World folder not found in workspace!",
             Color = Color3.fromRGB(255, 0, 0)
         })
     end
@@ -142,20 +142,20 @@ MainTab:CreateToggle({
 })
 
 local function Wait(x)
-    local startTick = tick()  -- Czas rzeczywisty
-    local startClock = os.clock()  -- Czas CPU
+    local startTick = tick()
+    local startClock = os.clock()
 
     for i = 1, x do
         task.wait()
     end
 
-    local logTime = false  -- Ustaw true, by włączyć logowanie
+    getgenv().logTime = getgenv().logTime or false
 
-    if logTime then
+    if getgenv().logTime then
         local totalTick = tick() - startTick
         local totalClock = os.clock() - startClock
-        print("Wait(" .. x .. ") trwało około " .. totalTick .. " sekund (czas rzeczywisty).")
-        print("Czas używanego CPU: " .. totalClock .. " sekund.")
+        print("Wait(" .. x .. ") lasted " .. totalTick .. " seconds (real-time).")
+        print("CPU time: " .. totalClock .. " seconds.")
     end
 end
 
@@ -187,7 +187,6 @@ OtherTab:CreateToggle({
 
 local function toggleDiamondsGui(Value)
     if Value then
-        -- Tworzymy GUI
         local screenGui = Instance.new("ScreenGui")
         screenGui.Name = "DiamondsGui"
         screenGui.ResetOnSpawn = false
@@ -282,7 +281,7 @@ local AutoTapToggle = OtherTab:CreateToggle({
                         if not AutoBreak then break end
                         if b:IsA("Model") and b:GetAttribute("ParentID") == zone and b.Parent then
                             Network.Breakables_PlayerDealDamage:FireServer(b.Name)
-                            task.wait(.7)
+                            task.wait(.75//)
                         end
                     end
                     task.wait(1)
