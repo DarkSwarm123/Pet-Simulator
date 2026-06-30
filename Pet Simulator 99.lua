@@ -612,6 +612,8 @@ local DaycareToggle = MainTab:CreateToggle({
                         end
                     end
 
+                     Wait(10)
+                        
                     -- CLAIM PHASE
                     if needsClaim then
                         Network["Daycare: Claim"]:InvokeServer()
