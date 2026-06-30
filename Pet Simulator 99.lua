@@ -4,6 +4,7 @@ if game.GameId == 3317771874 then
    print("Welcome")
 else
    warn("This is not Pet Simulator 99")
+   return
 end
 
 if getgenv().Active then return end
