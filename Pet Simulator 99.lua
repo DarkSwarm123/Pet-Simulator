@@ -89,7 +89,7 @@ local function Hatch()
     local maxZoneData = ZoneCmds.GetMaximumZone()
     if not maxZoneData or not maxZoneData.MaximumAvailableEgg then
         return NotificationCmds.Message.Bottom({
-            Message = "❌ Nie udało się pobrać danych strefy!",
+            Message = "❌ Zone data download failed!",
             Color = Color3.fromRGB(255, 0, 0)
         })
     end
@@ -115,13 +115,13 @@ local function Hatch()
 
     if not targetCapsule then
         return NotificationCmds.Message.Bottom({
-            Message = "⚠️ Nie znaleziono kapsuły jajka (" .. bestEggNum .. ")!",
+            Message = "⚠️ Egg Capsule not found (" .. bestEggNum .. ")!",
             Color = Color3.fromRGB(255, 255, 0)
         })
     end
 
     NotificationCmds.Message.Bottom({
-        Message = string.format("🥚 Auto Hatch uruchomiony! (%s)", maxZoneData.ZoneName),
+        Message = string.format("🥚 Auto Hatch running! (%s)", maxZoneData.ZoneName),
         Color = Color3.fromRGB(0, 255, 0)
     })
 
@@ -391,7 +391,7 @@ local SeedBagToggle = GardenTab:CreateToggle({
 
 local Section = ItemsTab:CreateSection("Forge Machine")
 
-local targetNames = {
+local targetNames = getgenv().targetNames or {
     ["Diamonds"] = true,
     ["Coins"] = true,
     ["Bonus"] = true,
