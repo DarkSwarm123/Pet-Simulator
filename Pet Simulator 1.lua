@@ -70,68 +70,26 @@ local FarmingTab = Window:CreateTab("🌱Farming", 4483362458)
 
 local ThemesTab = Window:CreateTab("🦋Themes", 4483362458)
 
-local Button = ThemesTab:CreateButton({
-   Name = "Default",
-   Callback = function()
-   Window.ModifyTheme('Default')
-   end,
-})
+local themes = {
+    {"Default", "Default"},
+    {"Ocean", "Ocean"},
+    {"Dark Blue", "DarkBlue"},
+    {"Green", "Green"},
+    {"Bloom", "Bloom"},
+    {"Light", "Light"},
+    {"Serenity", "Serenity"},
+    {"Amethyst", "Amethyst"},
+    {"Amber Glow", "AmberGlow"}
+}
 
-local Button = ThemesTab:CreateButton({
-   Name = "Ocean",
-   Callback = function()
-   Window.ModifyTheme('Ocean')
-   end,
-})
-
-local Button = ThemesTab:CreateButton({
-   Name = "Dark Blue",
-   Callback = function()
-   Window.ModifyTheme('DarkBlue')
-   end,
-})
-
-local Button = ThemesTab:CreateButton({
-   Name = "Green",
-   Callback = function()
-   Window.ModifyTheme('Green')
-   end,
-})
-
-local Button = ThemesTab:CreateButton({
-   Name = "Bloom",
-   Callback = function()
-   Window.ModifyTheme('Bloom')
-   end,
-})
-
-local Button = ThemesTab:CreateButton({
-   Name = "Light",
-   Callback = function()
-   Window.ModifyTheme('Light')
-   end,
-})
-
-local Button = ThemesTab:CreateButton({
-   Name = "Serenity",
-   Callback = function()
-   Window.ModifyTheme('Serenity')
-   end,
-})
-
-local Button = ThemesTab:CreateButton({
-   Name = "Amethyst",
-   Callback = function()
-   Window.ModifyTheme('Amethyst')
-   end,
-})
-
-local Button = ThemesTab:CreateButton({
-   Name = "Amber Glow",
-   Callback = function()
-   Window.ModifyTheme('AmberGlow')
-   end,
-})
+for _, theme in ipairs(themes) do
+    ThemesTab:CreateButton({
+        Name = theme[1],
+        Callback = function()
+            Window.ModifyTheme(theme[2])
+        end,
+    })
+end
 
 local screenGui = Instance.new("ScreenGui")
 screenGui.Name = "RenderToggleGui"
