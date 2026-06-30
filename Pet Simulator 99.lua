@@ -13,6 +13,8 @@ getgenv().Active = true
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 print("Rayfield Loaded")
 
+task.wait(3)
+
 local function Wait(x)
     local startTick = tick()
     local startClock = os.clock()
@@ -64,8 +66,6 @@ local Window = Rayfield:CreateWindow({
       Key = {"Hello"} 
    }
 })
-
-Wait(30)
 
 local function CreateTab(Name, Icon)
     return Window:CreateTab(Name, Icon)
