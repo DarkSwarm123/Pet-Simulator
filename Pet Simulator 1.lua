@@ -3,7 +3,7 @@ repeat task.wait() until game:IsLoaded()
 if game.GameId == 619296292 then
    print("Welcome")
 else
-   warn("This is not Pet Simulator 1")
+	warn("This is not Pet Simulator 1")
 	return
 end
 
