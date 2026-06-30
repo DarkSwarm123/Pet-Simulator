@@ -780,7 +780,3 @@ task.delay(0.4, function()
         end
     end
 end)
-
-task.delay(10, function()
-    getgenv().Active = false
-end)
