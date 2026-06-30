@@ -6,6 +6,9 @@ else
    warn("This is not Pet Simulator 99")
 end
 
+if getgenv().Active then return end
+getgenv().Active = true
+
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
 local Window = Rayfield:CreateWindow({
