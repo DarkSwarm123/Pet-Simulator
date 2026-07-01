@@ -108,6 +108,7 @@ local LocalPlayer = Players.LocalPlayer
 local NotificationCmds = require(ReplicatedStorage.Library.Client.NotificationCmds)
 local EggCmds = require(ReplicatedStorage.Library.Client.EggCmds)
 local ZoneCmds = require(ReplicatedStorage.Library.Client.ZoneCmds)
+local MapCmds = require(game:GetService("ReplicatedStorage").Library.Client.MapCmds)
 
 local starthatch = false
 
