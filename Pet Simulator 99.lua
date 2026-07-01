@@ -248,7 +248,7 @@ OtherTab:CreateToggle({
         task.spawn(function()
             while AutoTP do
                 TeleportToBestZone()
-                task.wait(2)
+                task.wait(3)
             end
         end)
     end
