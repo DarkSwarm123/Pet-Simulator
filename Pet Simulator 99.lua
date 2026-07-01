@@ -195,6 +195,65 @@ local function setRendering(state)  game:GetService("RunService"):Set3dRendering
     background.Visible = not state
 end
 
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Players = game:GetService("Players")
+
+local ZoneCmds = require(ReplicatedStorage.Library.Client.ZoneCmds)
+local LocalPlayer = Players.LocalPlayer
+
+local function TeleportToBestZone()
+    local character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+    local HRP = character:WaitForChild("HumanoidRootPart")
+
+    local zoneData = ZoneCmds.GetMaximumZone()
+    if not zoneData or not zoneData.ZoneNumber then
+        warn("Brak danych strefy")
+        return
+    end
+
+    local zoneFolder = workspace:FindFirstChild("Map" .. zoneData.WorldNumber)
+    if not zoneFolder then
+        warn("Nie znaleziono mapy świata")
+        return
+    end
+
+    local zoneName = zoneData.ZoneNumber .. " | " .. zoneData.ZoneName
+    local zoneInstance = zoneFolder:FindFirstChild(zoneName)
+    if not zoneInstance then
+        warn("Nie znaleziono strefy")
+        return
+    end
+
+    local mainSpawn = zoneInstance:FindFirstChild("INTERACT")
+        and zoneInstance.INTERACT:FindFirstChild("BREAKABLE_SPAWNS")
+        and zoneInstance.INTERACT.BREAKABLE_SPAWNS:FindFirstChild("Main")
+
+    if mainSpawn then
+        HRP.CFrame = mainSpawn.CFrame + Vector3.new(0, 10, 0)
+        print("Teleport:", zoneName)
+    else
+        warn("Brak spawn CFrame")
+    end
+end
+
+local AutoTP = false
+
+OtherTab:CreateToggle({
+    Name = "Auto Best Zone TP",
+    CurrentValue = false,
+    Flag = "AutoTPZone",
+    Callback = function(Value)
+        AutoTP = Value
+
+        task.spawn(function()
+            while AutoTP do
+                TeleportToBestZone()
+                task.wait(2)
+            end
+        end)
+    end
+})
+
 OtherTab:CreateToggle({
     Name = "No Rendering",
     CurrentValue = false,
