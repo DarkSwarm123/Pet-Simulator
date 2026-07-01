@@ -207,6 +207,13 @@ local ZoneCmds = require(ReplicatedStorage.Library.Client.ZoneCmds)
 local LocalPlayer = Players.LocalPlayer
 
 local function TeleportToBestZone()
+local currentZone = MapCmds.GetCurrentZone()
+local maxZone = ZoneCmds.GetMaximumZone()
+
+if currentZone == maxZone.ZoneName and MapCmds.IsInDottedBox() then
+    return
+end
+
     local character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
     local HRP = character:WaitForChild("HumanoidRootPart")
 
