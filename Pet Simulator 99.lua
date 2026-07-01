@@ -77,11 +77,7 @@ local OtherTab = CreateTab("Other", 4483362458)
 
 local ItemsTab = CreateTab("Items", 4483362458)
 
-local GardenTab = nil
-
-if game.PlaceId == 8737899170 then
-GardenTab = CreateTab("Garden", 15555104643)
-end
+local GardenTab = CreateTab("Garden", 15555104643)
 
 local MinigamesTab = CreateTab("Minigames", 4483362458)
 
