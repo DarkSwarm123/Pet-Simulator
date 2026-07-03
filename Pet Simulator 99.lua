@@ -182,35 +182,6 @@ MainTab:CreateToggle({
     end
 })
 
-local screenGui = Instance.new("ScreenGui")
-screenGui.Name = "RenderToggleGui"
-screenGui.ResetOnSpawn = false
-screenGui.IgnoreGuiInset = true
-screenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
-
-local background = Instance.new("Frame")
-background.Size = UDim2.new(1, 0, 1, 0)
-background.Position = UDim2.new(0, 0, 0, 0)
-background.BackgroundColor3 = Color3.new(0, 0, 0)
-background.ZIndex = 10
-background.Visible = false
-background.Parent = screenGui
-
-local RunService = game:GetService("RunService")
-
-local function setRendering(state)
-    RunService:Set3dRenderingEnabled(state)
-    background.Visible = not state
-
-    if setfpscap then
-        if state then
-            setfpscap(60)
-        else
-            setfpscap(3)
-        end
-    end
-end
-
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
 
@@ -276,6 +247,35 @@ OtherTab:CreateToggle({
         end)
     end
 })
+
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "RenderToggleGui"
+screenGui.ResetOnSpawn = false
+screenGui.IgnoreGuiInset = true
+screenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+
+local background = Instance.new("Frame")
+background.Size = UDim2.new(1, 0, 1, 0)
+background.Position = UDim2.new(0, 0, 0, 0)
+background.BackgroundColor3 = Color3.new(0, 0, 0)
+background.ZIndex = 10
+background.Visible = false
+background.Parent = screenGui
+
+local RunService = game:GetService("RunService")
+
+local function setRendering(state)
+    RunService:Set3dRenderingEnabled(state)
+    background.Visible = not state
+
+    if setfpscap then
+        if state then
+            setfpscap(60)
+        else
+            setfpscap(3)
+        end
+    end
+end
 
 OtherTab:CreateToggle({
     Name = "No Rendering",
