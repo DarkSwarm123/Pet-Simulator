@@ -196,8 +196,19 @@ background.ZIndex = 10
 background.Visible = false
 background.Parent = screenGui
 
-local function setRendering(state)  game:GetService("RunService"):Set3dRenderingEnabled(state)
+local RunService = game:GetService("RunService")
+
+local function setRendering(state)
+    RunService:Set3dRenderingEnabled(state)
     background.Visible = not state
+
+    if setfpscap then
+        if state then
+            setfpscap(60)
+        else
+            setfpscap(3)
+        end
+    end
 end
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
