@@ -110,8 +110,6 @@ local EggCmds = require(ReplicatedStorage.Library.Client.EggCmds)
 local ZoneCmds = require(ReplicatedStorage.Library.Client.ZoneCmds)
 local MapCmds = require(game:GetService("ReplicatedStorage").Library.Client.MapCmds)
 
-local starthatch = false
-
 local EggDB = {}
 
 local function BuildEggDatabase()
@@ -171,6 +169,8 @@ local function Hatch()
 
     LocalPlayer.PlayerScripts.Scripts.Game["Egg Opening Frontend"].Enabled = true
 end
+
+local starthatch = false
 
 MainTab:CreateToggle({
     Name = "Auto Hatch Max Zone Egg",
