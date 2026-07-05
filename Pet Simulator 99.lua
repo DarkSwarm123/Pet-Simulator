@@ -187,12 +187,6 @@ MainTab:CreateToggle({
     end
 })
 
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local Players = game:GetService("Players")
-
-local ZoneCmds = require(ReplicatedStorage.Library.Client.ZoneCmds)
-local LocalPlayer = Players.LocalPlayer
-
 local function TeleportToBestZone()
 local currentZone = MapCmds.GetCurrentZone()
 local maxZone = ZoneCmds.GetMaximumZone()
