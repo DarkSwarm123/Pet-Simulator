@@ -141,7 +141,8 @@ local function Hatch()
     end
 
     local Egg = GetEggNameFromZone(maxZoneData)
-
+    getgenv().Egg = GetEggNameFromZone(maxZoneData)
+   
     if not Egg then
         warn("Nie znaleziono egg dla:", maxZoneData.MaximumAvailableEgg)
         return
