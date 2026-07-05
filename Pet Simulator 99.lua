@@ -108,15 +108,21 @@ local LocalPlayer = Players.LocalPlayer
 local NotificationCmds = require(ReplicatedStorage.Library.Client.NotificationCmds)
 local EggCmds = require(ReplicatedStorage.Library.Client.EggCmds)
 local ZoneCmds = require(ReplicatedStorage.Library.Client.ZoneCmds)
-local MapCmds = require(game:GetService("ReplicatedStorage").Library.Client.MapCmds)
+local MapCmds = require(ReplicatedStorage.Library.Client.MapCmds)
+
+local starthatch = false
+
+local EggsFolder = ReplicatedStorage:WaitForChild("__DIRECTORY")
+    :WaitForChild("Eggs")
+    :WaitForChild("Zone Eggs")
 
 local function GetEggNameFromZone(maxZoneData)
     local num = tostring(maxZoneData.MaximumAvailableEgg)
 
-    for _, egg in ipairs(game:GetService("ReplicatedStorage").__DIRECTORY.Eggs["Zone Eggs"]:GetDescendants()) do
+    for _, egg in ipairs(EggsFolder:GetDescendants()) do
         if egg.Name:match("^" .. num .. " |") then
-            warn(egg.Name)
-            return egg.Name:match("^%d+ | (.+)$")
+            local clean = egg.Name:match("^%d+ | (.+)$")
+            return clean
         end
     end
 
@@ -124,24 +130,29 @@ local function GetEggNameFromZone(maxZoneData)
 end
 
 local function Hatch()
-
     local maxZoneData = ZoneCmds.GetMaximumZone()
 
     if not maxZoneData or not maxZoneData.MaximumAvailableEgg then
-        return NotificationCmds.Message.Bottom({
+        NotificationCmds.Message.Bottom({
             Message = "❌ Zone data download failed!",
             Color = Color3.fromRGB(255, 0, 0)
         })
+        return
     end
 
     local Egg = GetEggNameFromZone(maxZoneData)
 
     if not Egg then
-        warn("Nie znaleziono egg")
+        warn("Nie znaleziono egg dla:", maxZoneData.MaximumAvailableEgg)
         return
     end
 
-    LocalPlayer.PlayerScripts.Scripts.Game["Egg Opening Frontend"].Enabled = false
+    local frontend = LocalPlayer.PlayerScripts
+        :WaitForChild("Scripts")
+        :WaitForChild("Game")
+        :WaitForChild("Egg Opening Frontend")
+
+    frontend.Enabled = false
 
     NotificationCmds.Message.Bottom({
         Message = string.format("🥚 Auto Hatch running! (%s)", maxZoneData.ZoneName),
@@ -149,28 +160,37 @@ local function Hatch()
     })
 
     while starthatch do
-        task.wait(EggCmds.ComputeDebounce())
+        task.wait(EggCmds.ComputeDebounce() or 0.1)
 
-        pcall(function()
+        local success, err = pcall(function()
             EggCmds.RequestPurchase(Egg, EggCmds.GetMaxHatch())
         end)
 
-        task.wait()
+        if not success then
+            warn("Hatch error:", err)
+        end
     end
-end
 
-local starthatch = false
+    frontend.Enabled = true
+end
 
 MainTab:CreateToggle({
     Name = "Auto Hatch Best Egg",
     CurrentValue = false,
     Flag = "AutoHatchBestEgg",
     Callback = function(Value)
+        local ok, err = pcall(function()
+            starthatch = Value
 
-        starthatch = Value
+            if starthatch then
+                task.spawn(function()
+                    Hatch()
+                end)
+            end
+        end)
 
-        if starthatch then
-            task.spawn(Hatch)
+        if not ok then
+            warn("Toggle error:", err)
         end
     end
 })
