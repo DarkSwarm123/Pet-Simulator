@@ -162,7 +162,7 @@ local function Hatch()
 
    NotificationCmds.Message.Bottom({
         Message = Egg,
-        Color = Color3.fromRGB(0, 255, 0)
+        Color = Color3.fromRGB(0, 128, 0)
     })
 
 
