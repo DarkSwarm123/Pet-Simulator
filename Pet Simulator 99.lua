@@ -170,7 +170,6 @@ MainTab:CreateToggle({
         starthatch = Value
 
         if starthatch then
-            BuildEggDatabase()
             task.spawn(Hatch)
         end
     end
