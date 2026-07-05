@@ -115,6 +115,7 @@ local function GetEggNameFromZone(maxZoneData)
 
     for _, egg in ipairs(game:GetService("ReplicatedStorage").__DIRECTORY.Eggs["Zone Eggs"]:GetDescendants()) do
         if egg.Name:match("^" .. num .. " |") then
+            warn(egg.Name)
             return egg.Name:match("^%d+ | (.+)$")
         end
     end
