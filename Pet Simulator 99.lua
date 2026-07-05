@@ -112,11 +112,34 @@ local MapCmds = require(game:GetService("ReplicatedStorage").Library.Client.MapC
 
 local starthatch = false
 
+local EggDB = {}
+
+local function BuildEggDatabase()
+    table.clear(EggDB)
+
+    local folder = game:GetService("ReplicatedStorage")
+        :WaitForChild("__DIRECTORY")
+        :WaitForChild("Eggs")
+        :WaitForChild("Zone Eggs")
+
+    for _, egg in ipairs(folder:GetDescendants()) do
+        local num, name = egg.Name:match("^(%d+) | (.+)$")
+
+        if num then
+            EggDB[tonumber(num)] = name
+        end
+    end
+end
+
+local function GetEggNameFromZone(maxZoneData)
+    local num = tonumber(maxZoneData.MaximumAvailableEgg)
+    return EggDB[num]
+end
+
 local function Hatch()
-    local HRP = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
-    LocalPlayer.PlayerScripts.Scripts.Game["Egg Opening Frontend"].Enabled = false
 
     local maxZoneData = ZoneCmds.GetMaximumZone()
+
     if not maxZoneData or not maxZoneData.MaximumAvailableEgg then
         return NotificationCmds.Message.Bottom({
             Message = "❌ Zone data download failed!",
@@ -124,31 +147,14 @@ local function Hatch()
         })
     end
 
-    local worldNum = maxZoneData.WorldNumber
-    local bestEggNum = maxZoneData.MaximumAvailableEgg
+    local Egg = GetEggNameFromZone(maxZoneData)
 
-    local worldFolder = workspace.__THINGS.ZoneEggs:FindFirstChild("World" .. worldNum)
-    if not worldFolder then
-        return NotificationCmds.Message.Bottom({
-            Message = "❌ World folder not found in workspace!",
-            Color = Color3.fromRGB(255, 0, 0)
-        })
+    if not Egg then
+        warn("Nie znaleziono egg:", maxZoneData.MaximumAvailableEgg)
+        return
     end
 
-    local targetCapsule
-    for _, capsule in ipairs(worldFolder:GetChildren()) do
-        if capsule.Name:match("^" .. bestEggNum) then
-            targetCapsule = capsule
-            break
-        end
-    end
-
-    if not targetCapsule then
-        return NotificationCmds.Message.Bottom({
-            Message = "⚠️ Egg Capsule not found (" .. bestEggNum .. ")!",
-            Color = Color3.fromRGB(255, 255, 0)
-        })
-    end
+    LocalPlayer.PlayerScripts.Scripts.Game["Egg Opening Frontend"].Enabled = false
 
     NotificationCmds.Message.Bottom({
         Message = string.format("🥚 Auto Hatch running! (%s)", maxZoneData.ZoneName),
@@ -157,17 +163,13 @@ local function Hatch()
 
     while starthatch do
         task.wait(EggCmds.ComputeDebounce())
-        pcall(function()
-            HRP = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
-            if not HRP then return end
 
-            local distance = (HRP.Position - targetCapsule:GetPivot().Position).Magnitude
-            if distance <= 40 then
-                EggCmds.RequestPurchase(maxZoneData.ZoneName .. " Egg", EggCmds.GetMaxHatch())
-            end
+        pcall(function()
+            EggCmds.RequestPurchase(Egg, EggCmds.GetMaxHatch())
         end)
-        task.wait()
     end
+
+    LocalPlayer.PlayerScripts.Scripts.Game["Egg Opening Frontend"].Enabled = true
 end
 
 MainTab:CreateToggle({
@@ -175,8 +177,11 @@ MainTab:CreateToggle({
     CurrentValue = false,
     Flag = "AutoHatchBestEgg",
     Callback = function(Value)
+
         starthatch = Value
+
         if starthatch then
+            BuildEggDatabase()
             task.spawn(Hatch)
         end
     end
