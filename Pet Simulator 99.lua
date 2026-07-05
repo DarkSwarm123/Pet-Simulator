@@ -160,7 +160,7 @@ local function Hatch()
     })
 
     while starthatch do
-        task.wait(EggCmds.ComputeDebounce() or 0.1)
+        task.wait(EggCmds.ComputeDebounce() or 1)
 
         local success, err = pcall(function()
             EggCmds.RequestPurchase(Egg, EggCmds.GetMaxHatch())
