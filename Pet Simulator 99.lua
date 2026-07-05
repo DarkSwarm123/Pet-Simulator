@@ -627,7 +627,6 @@ for _, name in ipairs(bagNames) do
 end
 
 local UltimateCmds = require(game:GetService("ReplicatedStorage").Library.Client.UltimateCmds)
-local MapCmds = require(game:GetService("ReplicatedStorage").Library.Client.MapCmds)
 
 local toggleEnabled = false
 
