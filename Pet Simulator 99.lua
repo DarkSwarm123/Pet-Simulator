@@ -160,6 +160,12 @@ local function Hatch()
         Color = Color3.fromRGB(0, 255, 0)
     })
 
+   NotificationCmds.Message.Bottom({
+        Message = string.format(Egg),
+        Color = Color3.fromRGB(0, 255, 0)
+    })
+
+
     while starthatch do
         task.wait(EggCmds.ComputeDebounce() or 1)
 
