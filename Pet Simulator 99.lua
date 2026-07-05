@@ -173,7 +173,7 @@ end
 local starthatch = false
 
 MainTab:CreateToggle({
-    Name = "Auto Hatch Max Zone Egg",
+    Name = "Auto Hatch Best Egg",
     CurrentValue = false,
     Flag = "AutoHatchBestEgg",
     Callback = function(Value)
@@ -241,7 +241,7 @@ OtherTab:CreateToggle({
         task.spawn(function()
             while AutoTP do
                 TeleportToBestZone()
-                task.wait(3)
+                task.wait(1)
             end
         end)
     end
@@ -995,12 +995,6 @@ end
             end
         end)
     end,
-})
-
-local RemoteSpyButton = OtherTab:CreateButton({
-    Name = "RemoteSpy (For Mobile)",
-    Callback = function()        loadstring(game:HttpGet("https://rawscripts.net/raw/Universal-Script-Simple-Spy-32021"))()
-    end
 })
 
 game:GetService("Players").LocalPlayer.PlayerScripts.Scripts.Game["Giftbags Frontend"].Enabled = false
