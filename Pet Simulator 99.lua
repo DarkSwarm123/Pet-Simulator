@@ -13,7 +13,7 @@ getgenv().Active = true
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 print("Rayfield Loaded")
 
-task.wait(3)
+task.wait(1)
 
 local function Wait(x)
     local startTick = tick()
