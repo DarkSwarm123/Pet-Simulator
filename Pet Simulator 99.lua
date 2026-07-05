@@ -110,28 +110,16 @@ local EggCmds = require(ReplicatedStorage.Library.Client.EggCmds)
 local ZoneCmds = require(ReplicatedStorage.Library.Client.ZoneCmds)
 local MapCmds = require(game:GetService("ReplicatedStorage").Library.Client.MapCmds)
 
-local EggDB = {}
+local function GetEggNameFromZone(maxZoneData)
+    local num = tostring(maxZoneData.MaximumAvailableEgg)
 
-local function BuildEggDatabase()
-    table.clear(EggDB)
-
-    local folder = game:GetService("ReplicatedStorage")
-        :WaitForChild("__DIRECTORY")
-        :WaitForChild("Eggs")
-        :WaitForChild("Zone Eggs")
-
-    for _, egg in ipairs(folder:GetDescendants()) do
-        local num, name = egg.Name:match("^(%d+) | (.+)$")
-
-        if num then
-            EggDB[tonumber(num)] = name
+    for _, egg in ipairs(game:GetService("ReplicatedStorage").__DIRECTORY.Eggs["Zone Eggs"]:GetDescendants()) do
+        if egg.Name:match("^" .. num .. " |") then
+            return egg.Name:match("^%d+ | (.+)$")
         end
     end
-end
 
-local function GetEggNameFromZone(maxZoneData)
-    local num = tonumber(maxZoneData.MaximumAvailableEgg)
-    return EggDB[num]
+    return nil
 end
 
 local function Hatch()
@@ -148,7 +136,7 @@ local function Hatch()
     local Egg = GetEggNameFromZone(maxZoneData)
 
     if not Egg then
-        warn("Nie znaleziono egg:", maxZoneData.MaximumAvailableEgg)
+        warn("Nie znaleziono egg")
         return
     end
 
@@ -165,9 +153,9 @@ local function Hatch()
         pcall(function()
             EggCmds.RequestPurchase(Egg, EggCmds.GetMaxHatch())
         end)
-    end
 
-    LocalPlayer.PlayerScripts.Scripts.Game["Egg Opening Frontend"].Enabled = true
+        task.wait()
+    end
 end
 
 local starthatch = false
