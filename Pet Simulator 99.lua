@@ -71,15 +71,15 @@ local function CreateTab(Name, Icon)
     return Window:CreateTab(Name, Icon)
 end
 
-local MainTab = CreateTab("Main", 4483362458)
+local MainTab = CreateTab("Main", 0)
 
-local OtherTab = CreateTab("Other", 4483362458)
+local OtherTab = CreateTab("Other", 0)
 
-local ItemsTab = CreateTab("Items", 4483362458)
+local ItemsTab = CreateTab("Items", 0)
 
-local GardenTab = CreateTab("Garden", 15555104643)
+local GardenTab = CreateTab("Garden", 0)
 
-local MinigamesTab = CreateTab("Minigames", 4483362458)
+local MinigamesTab = CreateTab("Minigames", 0)
 
 local orb = require(game:GetService("ReplicatedStorage").Library.Client.OrbCmds.Orb)
 orb.DefaultPickupDistance = math.huge
