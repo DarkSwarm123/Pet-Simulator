@@ -374,32 +374,115 @@ OtherTab:CreateToggle({
 })
 
 local AutoBreak = false
+local ClickCooldown = 0.125  -- Domyslnie 8 CPS
+local MaxCPS = 16            -- Maksymalnie 16 CPS (jak w oryginale)
+local MaxDistance = 150      -- Zasięg klikania (jednostki Robloxa)
 
+-- Funkcja do dynamicznego liczenia CPS (na podstawie "Swift Taps")
+local function GetCurrentCPS()
+    local baseCPS = 8
+    local swiftTaps = 0
+    
+    -- Próba pobrania wartości "Swift Taps" z gry (jeśli istnieje)
+    local ReplicatedStorage = game:GetService("ReplicatedStorage")
+    local EnchantCmds = require(ReplicatedStorage.Library.Client.EnchantCmds)
+    local power = EnchantCmds.GetPower("Swift Taps")
+    if type(power) == "number" and power > 0 then
+        swiftTaps = power
+    end
+    
+    local newCPS = baseCPS * (1 + swiftTaps / 100)
+    return math.min(newCPS, MaxCPS)  -- Nie przekraczaj 16 CPS
+end
+
+-- Główna funkcja celująca w najbliższy przedmiot (dokładnie jak w oryginale)
+local function GetNearestBreakable()
+    local Players = game:GetService("Players")
+    local Workspace = game:GetService("Workspace")
+    local ReplicatedStorage = game:GetService("ReplicatedStorage")
+    local MapCmds = require(ReplicatedStorage.Library.Client.MapCmds)
+    local BreakableCmds = require(ReplicatedStorage.Library.Client.BreakableCmds)
+    local InstancingCmds = require(ReplicatedStorage.Library.Client.InstancingCmds)
+    local PlayerUtils = require(ReplicatedStorage.Library.Player)
+    
+    local playerPos = PlayerUtils.Optional.Position()
+    if not playerPos then return nil end
+    
+    local candidates = {}
+    
+    -- Zbieramy wszystkie przedmioty z aktualnej strefy lub instancji
+    if InstancingCmds.IsInInstance() then
+        for _, b in pairs(BreakableCmds.AllByInstanceAndClass("Chest")) do
+            candidates[#candidates + 1] = b
+        end
+        for _, b in pairs(BreakableCmds.AllByInstanceAndClass("Normal")) do
+            candidates[#candidates + 1] = b
+        end
+    else
+        local zone = MapCmds.GetCurrentZone()
+        if zone then
+            for _, b in pairs(BreakableCmds.AllByZoneAndClass(zone, "Chest")) do
+                candidates[#candidates + 1] = b
+            end
+            for _, b in pairs(BreakableCmds.AllByZoneAndClass(zone, "Normal")) do
+                candidates[#candidates + 1] = b
+            end
+        end
+    end
+    
+    -- Szukamy najbliższego, pomijając te zablokowane
+    local closest = nil
+    local closestDist = math.huge
+    local config = InstancingCmds.GetInstanceConfig()
+    local maxDist = (config and config.MaxClickDistance) or MaxDistance
+    
+    for _, b in pairs(candidates) do
+        if not (b:GetAttribute("ManualDamage") or b:GetAttribute("DisableDamage")) then
+            local dist = (b:GetPivot().Position - playerPos).Magnitude
+            if dist < maxDist and dist < closestDist then
+                closest = b
+                closestDist = dist
+            end
+        end
+    end
+    
+    return closest
+end
+
+-- Twój przycisk w UI
 local AutoTapToggle = OtherTab:CreateToggle({
-    Name = "Auto Tap Breakables",
+    Name = "Auto Tap Breakables (Nearest)",
     CurrentValue = false,
     Flag = "AutoBreakToggle",
     Callback = function(Value)
         AutoBreak = Value
         if Value then
             task.spawn(function()
-                local Workspace = game:GetService("Workspace")
+                local RunService = game:GetService("RunService")
                 local ReplicatedStorage = game:GetService("ReplicatedStorage")
                 local Network = ReplicatedStorage:WaitForChild("Network")
-                local Breakables = Workspace.__THINGS:WaitForChild("Breakables")
-                local MapCmds = require(ReplicatedStorage.Library.Client.MapCmds)
-
-                while AutoBreak do
-                    local zone = MapCmds.GetCurrentZone()
-                    for _, b in pairs(Breakables:GetChildren()) do
-                        if not AutoBreak then break end
-                        if b:IsA("Model") and b:GetAttribute("ParentID") == zone and b.Parent then
-                            Network.Breakables_PlayerDealDamage:FireServer(b.Name)
-                            task.wait(.75)
+                
+                local elapsed = 0
+                
+                -- Pętla działająca co klatkę (jak w oryginale)
+                RunService.RenderStepped:Connect(function(dt)
+                    if not AutoBreak then return end
+                    
+                    elapsed = elapsed + dt
+                    local currentCPS = GetCurrentCPS()
+                    local cooldown = 1 / currentCPS  -- np. 1/12 = 0.083s
+                    
+                    if elapsed >= cooldown then
+                        elapsed = 0
+                        
+                        -- Znajdź najbliższy przedmiot
+                        local target = GetNearestBreakable()
+                        if target then
+                            -- Wyślij event (dokładnie tak, jak robi to oryginał)
+                            Network.Breakables_PlayerDealDamage:FireServer(target.Name)
                         end
                     end
-                    task.wait(1)
-                end
+                end)
             end)
         end
     end
