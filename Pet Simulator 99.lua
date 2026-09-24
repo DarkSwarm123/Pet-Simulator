@@ -294,6 +294,7 @@ end
 OtherTab:CreateToggle({
     Name = "No Rendering",
     CurrentValue = false,
+    Flag = "NoRendering",
     Callback = function(Value)
         setRendering(not Value)
     end,
