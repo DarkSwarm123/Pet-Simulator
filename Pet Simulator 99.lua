@@ -309,7 +309,7 @@ OtherTab:CreateToggle({
             task.spawn(function()
                 while autoConsume do
                     if MapCmds.IsInDottedBox() then
-                        Network.TNT_Crate_Consume:InvokeServer()
+                        ReplicatedStorage.Network.TNT_Crate_Consume:InvokeServer()
                         task.wait(5)
                     else
                         task.wait(1)
