@@ -303,6 +303,7 @@ OtherTab:CreateToggle({
 OtherTab:CreateToggle({
     Name = "Auto TNT Crate",
     CurrentValue = false,
+    Flag = "TNTCrate",
     Callback = function(Value)
         autoConsume = Value
         if Value then
