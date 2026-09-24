@@ -286,7 +286,7 @@ local function setRendering(state)
         if state then
             setfpscap(60)
         else
-            setfpscap(3)
+            setfpscap(15)
         end
     end
 end
@@ -298,6 +298,26 @@ OtherTab:CreateToggle({
     Callback = function(Value)
         setRendering(not Value)
     end,
+})
+
+OtherTab:CreateToggle({
+    Name = "Auto TNT Crate",
+    CurrentValue = false,
+    Callback = function(Value)
+        autoConsume = Value
+        if Value then
+            task.spawn(function()
+                while autoConsume do
+                    if MapCmds.IsInDottedBox() then
+                        Network.TNT_Crate_Consume:InvokeServer()
+                        task.wait(5)
+                    else
+                        task.wait(1)
+                    end
+                end
+            end)
+        end
+    end
 })
 
 local function toggleDiamondsGui(Value)
