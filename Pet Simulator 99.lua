@@ -130,24 +130,6 @@ local function GetEggNameFromZone(maxZoneData)
 end
 
 local function Hatch()
-    local maxZoneData = ZoneCmds.GetMaximumZone()
-
-    if not maxZoneData or not maxZoneData.MaximumAvailableEgg then
-        NotificationCmds.Message.Bottom({
-            Message = "❌ Zone data download failed!",
-            Color = Color3.fromRGB(255, 0, 0)
-        })
-        return
-    end
-
-    local Egg = GetEggNameFromZone(maxZoneData)
-    getgenv().Egg = GetEggNameFromZone(maxZoneData)
-   
-    if not Egg then
-        warn("Nie znaleziono egg dla:", maxZoneData.MaximumAvailableEgg)
-        return
-    end
-
     local frontend = LocalPlayer.PlayerScripts
         :WaitForChild("Scripts")
         :WaitForChild("Game")
@@ -155,30 +137,44 @@ local function Hatch()
 
     frontend.Enabled = false
 
-    NotificationCmds.Message.Bottom({
-        Message = string.format("🥚 Auto Hatch running! (%s)", maxZoneData.ZoneName),
-        Color = Color3.fromRGB(0, 255, 0)
-    })
+    local ok, err = pcall(function()
+        while starthatch do
+            local maxZoneData = ZoneCmds.GetMaximumZone()
 
-   NotificationCmds.Message.Bottom({
-        Message = Egg,
-        Color = Color3.fromRGB(0, 128, 0)
-    })
+            if not maxZoneData or not maxZoneData.MaximumAvailableEgg then
+                NotificationCmds.Message.Bottom({
+                    Message = "❌ Zone data download failed!",
+                    Color = Color3.fromRGB(255, 0, 0)
+                })
+                task.wait(1)
+                continue
+            end
 
+            local Egg = GetEggNameFromZone(maxZoneData)
 
-    while starthatch do
-        task.wait(EggCmds.ComputeDebounce() or 1)
+            if not Egg then
+                warn("Nie znaleziono egg dla:", maxZoneData.MaximumAvailableEgg)
+                task.wait(1)
+                continue
+            end
 
-        local success, err = pcall(function()
-            EggCmds.RequestPurchase(Egg, EggCmds.GetMaxHatch())
-        end)
+            task.wait(EggCmds.ComputeDebounce() or 1)
 
-        if not success then
-            warn("Hatch error:", err)
+            local success, err = pcall(function()
+                EggCmds.RequestPurchase(Egg, EggCmds.GetMaxHatch())
+            end)
+
+            if not success then
+                warn("Hatch error:", err)
+            end
         end
-    end
+    end)
 
     frontend.Enabled = true
+
+    if not ok then
+        warn("Hatch loop error:", err)
+    end
 end
 
 MainTab:CreateToggle({
@@ -186,18 +182,16 @@ MainTab:CreateToggle({
     CurrentValue = false,
     Flag = "AutoHatchBestEgg",
     Callback = function(Value)
-        local ok, err = pcall(function()
-            starthatch = Value
+        starthatch = Value
 
-            if starthatch then
-                task.spawn(function()
-                    Hatch()
-                end)
-            end
-        end)
-
-        if not ok then
-            warn("Toggle error:", err)
+        if starthatch then
+            task.spawn(function()
+                local ok, err = pcall(Hatch)
+                if not ok then
+                    warn("Toggle error:", err)
+                    starthatch = false
+                end
+            end)
         end
     end
 })
