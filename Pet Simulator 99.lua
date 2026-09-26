@@ -219,8 +219,11 @@ local function TeleportToZone(zoneOffset)
 
     -- Sprawdź, czy już jesteś w tej strefie i w dotted box
     local currentZone = MapCmds.GetCurrentZone()
-    if currentZone == targetName and MapCmds.IsInDottedBox() then
-        return
+    if currentZone and MapCmds.IsInDottedBox() then
+        local targetCleanName = targetName:match("^%d+ | (.+)$")
+        if currentZone == targetCleanName then
+            return
+        end
     end
 
     local zoneInstance = zoneFolder:FindFirstChild(targetName)
