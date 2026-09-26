@@ -263,11 +263,11 @@ OtherTab:CreateToggle({
     CurrentValue = false,
     Flag = "AutoTP2ndBestZone",
     Callback = function(Value)
-        AutoTPBest = Value
+        AutoTP2ndBest = Value
         if Value then
             task.spawn(function()
                 while AutoTP2ndBest do
-                    TeleportToZone(0)
+                    TeleportToZone(1)
                     task.wait(1)
                 end
             end)
