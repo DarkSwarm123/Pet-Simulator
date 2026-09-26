@@ -196,61 +196,44 @@ MainTab:CreateToggle({
     end
 })
 
-local lastZone = nil
+local function TeleportToZone(zoneOffset)
+    local maxZone = ZoneCmds.GetMaximumZone()
+    if not maxZone or not maxZone.ZoneNumber then return end
 
-local function TeleportToBestZone()
-    local success, currentZone = pcall(function()
-        return MapCmds.GetCurrentZone()
-    end)
-    if not success then
-        warn("Błąd GetCurrentZone")
+    local targetNumber = maxZone.ZoneNumber - (zoneOffset or 0)
+    local targetWorld = maxZone.WorldNumber
+    local targetName = nil
+
+    local zoneFolder = workspace:FindFirstChild("Map" .. targetWorld)
+    if not zoneFolder then return end
+
+    for _, zone in ipairs(zoneFolder:GetChildren()) do
+        local num = tonumber(zone.Name:match("^(%d+)"))
+        if num == targetNumber then
+            targetName = zone.Name
+            break
+        end
+    end
+
+    if not targetName then return end
+
+    -- Sprawdź, czy już jesteś w tej strefie i w dotted box
+    local currentZone = MapCmds.GetCurrentZone()
+    if currentZone == targetName and MapCmds.IsInDottedBox() then
         return
     end
 
-    local zoneData = ZoneCmds.GetMaximumZone()
-    if not zoneData or not zoneData.ZoneNumber then
-        warn("Brak danych strefy")
-        return
-    end
-
-    -- Jeśli już jesteś w najlepszej strefie i w dotted box, nie teleportuj
-    if currentZone == zoneData.ZoneName and MapCmds.IsInDottedBox() then
-        return
-    end
-
-    -- Jeśli strefa się nie zmieniła od ostatniej teleportacji, nie teleportuj ponownie
-    local zoneKey = zoneData.ZoneNumber .. "|" .. zoneData.ZoneName
-    if lastZone == zoneKey then
-        return
-    end
-
-    local character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
-    local HRP = character:WaitForChild("HumanoidRootPart")
-
-    local zoneFolder = workspace:FindFirstChild("Map" .. zoneData.WorldNumber)
-    if not zoneFolder then
-        warn("Nie znaleziono mapy świata")
-        return
-    end
-
-    local zoneName = zoneData.ZoneNumber .. " | " .. zoneData.ZoneName
-    local zoneInstance = zoneFolder:FindFirstChild(zoneName)
-    if not zoneInstance then
-        warn("Nie znaleziono strefy")
-        return
-    end
-
-    local mainSpawn = zoneInstance:FindFirstChild("INTERACT")
+    local zoneInstance = zoneFolder:FindFirstChild(targetName)
+    local mainSpawn = zoneInstance
+        and zoneInstance:FindFirstChild("INTERACT")
         and zoneInstance.INTERACT:FindFirstChild("BREAKABLE_SPAWNS")
         and zoneInstance.INTERACT.BREAKABLE_SPAWNS:FindFirstChild("Main")
 
     if mainSpawn then
+        local char = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+        local HRP = char:WaitForChild("HumanoidRootPart")
         HRP.CFrame = mainSpawn.CFrame + Vector3.new(0, 10, 0)
-        lastZone = zoneKey
-        print("Teleport:", zoneName)
         task.wait(0.5)
-    else
-        warn("Brak spawn CFrame")
     end
 end
 
@@ -265,7 +248,7 @@ OtherTab:CreateToggle({
         if Value then
             task.spawn(function()
                 while AutoTP do
-                    TeleportToBestZone()
+                    TeleportToZone(0)
                     task.wait(1)
                 end
             end)
