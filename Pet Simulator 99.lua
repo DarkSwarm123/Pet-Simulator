@@ -202,22 +202,36 @@ MainTab:CreateToggle({
     end
 })
 
+local lastZone = nil
+
 local function TeleportToBestZone()
-local currentZone = MapCmds.GetCurrentZone()
-local maxZone = ZoneCmds.GetMaximumZone()
-
-if currentZone == maxZone.ZoneName and MapCmds.IsInDottedBox() then
-    return
-end
-
-    local character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
-    local HRP = character:WaitForChild("HumanoidRootPart")
+    local success, currentZone = pcall(function()
+        return MapCmds.GetCurrentZone()
+    end)
+    if not success then
+        warn("Błąd GetCurrentZone")
+        return
+    end
 
     local zoneData = ZoneCmds.GetMaximumZone()
     if not zoneData or not zoneData.ZoneNumber then
         warn("Brak danych strefy")
         return
     end
+
+    -- Jeśli już jesteś w najlepszej strefie i w dotted box, nie teleportuj
+    if currentZone == zoneData.ZoneName and MapCmds.IsInDottedBox() then
+        return
+    end
+
+    -- Jeśli strefa się nie zmieniła od ostatniej teleportacji, nie teleportuj ponownie
+    local zoneKey = zoneData.ZoneNumber .. "|" .. zoneData.ZoneName
+    if lastZone == zoneKey then
+        return
+    end
+
+    local character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+    local HRP = character:WaitForChild("HumanoidRootPart")
 
     local zoneFolder = workspace:FindFirstChild("Map" .. zoneData.WorldNumber)
     if not zoneFolder then
@@ -238,7 +252,9 @@ end
 
     if mainSpawn then
         HRP.CFrame = mainSpawn.CFrame + Vector3.new(0, 10, 0)
+        lastZone = zoneKey
         print("Teleport:", zoneName)
+        task.wait(0.5)
     else
         warn("Brak spawn CFrame")
     end
@@ -252,13 +268,14 @@ OtherTab:CreateToggle({
     Flag = "AutoTPZone",
     Callback = function(Value)
         AutoTP = Value
-
-        task.spawn(function()
-            while AutoTP do
-                TeleportToBestZone()
-                task.wait(1)
-            end
-        end)
+        if Value then
+            task.spawn(function()
+                while AutoTP do
+                    TeleportToBestZone()
+                    task.wait(1)
+                end
+            end)
+        end
     end
 })
 
