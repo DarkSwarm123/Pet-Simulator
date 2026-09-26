@@ -256,6 +256,25 @@ OtherTab:CreateToggle({
     end
 })
 
+local AutoTP2ndBest = false
+
+OtherTab:CreateToggle({
+    Name = "Auto 2nd Best Zone TP",
+    CurrentValue = false,
+    Flag = "AutoTP2ndBestZone",
+    Callback = function(Value)
+        AutoTPBest = Value
+        if Value then
+            task.spawn(function()
+                while AutoTP2ndBest do
+                    TeleportToZone(0)
+                    task.wait(1)
+                end
+            end)
+        end
+    end
+})
+
 local screenGui = Instance.new("ScreenGui")
 screenGui.Name = "RenderToggleGui"
 screenGui.ResetOnSpawn = false
