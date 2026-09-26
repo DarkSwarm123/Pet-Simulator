@@ -237,17 +237,17 @@ local function TeleportToZone(zoneOffset)
     end
 end
 
-local AutoTP = false
+local AutoTPBest = false
 
 OtherTab:CreateToggle({
     Name = "Auto Best Zone TP",
     CurrentValue = false,
-    Flag = "AutoTPZone",
+    Flag = "AutoTPBestZone",
     Callback = function(Value)
-        AutoTP = Value
+        AutoTPBest = Value
         if Value then
             task.spawn(function()
-                while AutoTP do
+                while AutoTPBest do
                     TeleportToZone(0)
                     task.wait(1)
                 end
