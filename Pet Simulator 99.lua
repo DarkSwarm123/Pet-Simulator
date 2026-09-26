@@ -509,6 +509,7 @@ local gardenCycleEnabled = false
 
 local function getAmount(section, id)
     local inventory = Save.Get().Inventory
+    if not inventory or not inventory[section] then return 0 end
     for _, v in pairs(inventory[section]) do
         if v.id == id then
             return v._am or 1
@@ -517,42 +518,63 @@ local function getAmount(section, id)
     return 0
 end
 
+local function sendInvoke(args)
+    local ok, err = pcall(function()
+        game.ReplicatedStorage.Network.Instancing_InvokeCustomFromClient:InvokeServer(unpack(args))
+    end)
+    if not ok then
+        warn("Invoke failed:", err)
+    end
+end
+
+local function sendFire(args)
+    local ok, err = pcall(function()
+        game.ReplicatedStorage.Network.Instancing_FireCustomFromClient:FireServer(unpack(args))
+    end)
+    if not ok then
+        warn("Fire failed:", err)
+    end
+end
+
 local function gardenCycle()
     while gardenCycleEnabled do
+        if game.PlaceId ~= 8737899170 then
+            gardenCycleEnabled = false
+            break
+        end
+
         local container = workspace:FindFirstChild("__THINGS")
             and workspace.__THINGS:FindFirstChild("__INSTANCE_CONTAINER")
             and workspace.__THINGS.__INSTANCE_CONTAINER.Active:FindFirstChild("FlowerGarden")
 
-        if not gardenCycleEnabled then
-            break
+        if not container then
+            task.wait(1)
+            continue
         end
 
         local diamondCount = getAmount("Seed", "Diamond")
         local instaCount = getAmount("Misc", "Insta Plant Capsule")
 
-        if diamondCount >= 10 and instaCount >= 10 and container then
-    
-            for i = 1, 10 do
-                local args = {"FlowerGarden", "PlantSeed", i, "Diamond"}
-                game.ReplicatedStorage.Network.Instancing_InvokeCustomFromClient:InvokeServer(unpack(args))
+        local plantCount = math.min(diamondCount, instaCount, 10)
+
+        if plantCount >= 1 then
+            for i = 1, plantCount do
+                sendInvoke({"FlowerGarden", "PlantSeed", i, "Diamond"})
             end
+            task.wait(.5)
 
-            task.wait()
-
-            for i = 1, 10 do
-                local args = {"FlowerGarden", "InstaGrowSeed", i}
-                game.ReplicatedStorage.Network.Instancing_InvokeCustomFromClient:InvokeServer(unpack(args))
+            for i = 1, plantCount do
+                sendInvoke({"FlowerGarden", "InstaGrowSeed", i})
             end
+            task.wait(.5)
 
-            task.wait()
-
-            for i = 1, 10 do
-                local args = {"FlowerGarden", "ClaimPlant", i}
-                game.ReplicatedStorage.Network.Instancing_FireCustomFromClient:FireServer(unpack(args))
+            for i = 1, plantCount do
+                sendFire({"FlowerGarden", "ClaimPlant", i})
             end
+            task.wait(.5)
+        else
+            task.wait(1)
         end
-
-        task.wait()
     end
 end
 
