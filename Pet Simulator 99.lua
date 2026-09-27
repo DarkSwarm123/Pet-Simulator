@@ -10,33 +10,7 @@ end
 if getgenv().Active then return end
 getgenv().Active = true
 
-local RunService = game:GetService("RunService")
-local Workspace = game:GetService("Workspace")
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local Players = game:GetService("Players")
-local LocalPlayer = Players.LocalPlayer
-
-local Library = ReplicatedStorage:WaitForChild("Library")
-local Client = Library:WaitForChild("Client")
-local Network = ReplicatedStorage:WaitForChild("Network")
-
-local DaycareCmds = require(Client:WaitForChild("DaycareCmds"))
-local UltimateCmds = require(Client:WaitForChild("UltimateCmds"))
-local MapCmds = require(Client:WaitForChild("MapCmds"))
-local BreakableCmds = require(Client:WaitForChild("BreakableCmds"))
-local InstancingCmds = require(Client:WaitForChild("InstancingCmds"))
-local NotificationCmds = require(Client:WaitForChild("NotificationCmds"))
-local EggCmds = require(Client:WaitForChild("EggCmds"))
-local ZoneCmds = require(Client:WaitForChild("ZoneCmds"))
-local OrbCmds = require(Client:WaitForChild("OrbCmds"))
-local Save = require(Client:WaitForChild("Save"))
-
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
-
-NotificationCmds.Message.Bottom({
-      Message = "Rayfield Loaded",
-      Color = Color3.fromRGB(0, 0, 255)
-   })
 
 task.wait(1)
 
@@ -105,6 +79,26 @@ local ItemsTab = CreateTab("Items", 0)
 local GardenTab = CreateTab("Garden", 0)
 
 local MinigamesTab = CreateTab("Minigames", 0)
+local RunService = game:GetService("RunService")
+local Workspace = game:GetService("Workspace")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+
+local Library = ReplicatedStorage:WaitForChild("Library")
+local Client = Library:WaitForChild("Client")
+local Network = ReplicatedStorage:WaitForChild("Network")
+
+local DaycareCmds = require(Client:WaitForChild("DaycareCmds"))
+local UltimateCmds = require(Client:WaitForChild("UltimateCmds"))
+local MapCmds = require(Client:WaitForChild("MapCmds"))
+local BreakableCmds = require(Client:WaitForChild("BreakableCmds"))
+local InstancingCmds = require(Client:WaitForChild("InstancingCmds"))
+local NotificationCmds = require(Client:WaitForChild("NotificationCmds"))
+local EggCmds = require(Client:WaitForChild("EggCmds"))
+local ZoneCmds = require(Client:WaitForChild("ZoneCmds"))
+local OrbCmds = require(Client:WaitForChild("OrbCmds"))
+local Save = require(Client:WaitForChild("Save"))
 
 local orb = require(OrbCmds.Orb)
 orb.DefaultPickupDistance = math.huge
