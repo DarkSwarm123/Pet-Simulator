@@ -81,14 +81,6 @@ local GardenTab = CreateTab("Garden", 0)
 
 local MinigamesTab = CreateTab("Minigames", 0)
 
-local orb = require(game:GetService("ReplicatedStorage").Library.Client.OrbCmds.Orb)
-orb.DefaultPickupDistance = math.huge
-orb.CollectDistance = math.huge
-orb.CombineDistance = math.huge
-orb.CombineDelay = 0
-orb.SoundDistance = 0
-orb.BillboardDistance = 0
-
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
@@ -97,6 +89,14 @@ local NotificationCmds = require(ReplicatedStorage.Library.Client.NotificationCm
 local EggCmds = require(ReplicatedStorage.Library.Client.EggCmds)
 local ZoneCmds = require(ReplicatedStorage.Library.Client.ZoneCmds)
 local MapCmds = require(ReplicatedStorage.Library.Client.MapCmds)
+
+local orb = require(game:GetService("ReplicatedStorage").Library.Client.OrbCmds.Orb)
+orb.DefaultPickupDistance = math.huge
+orb.CollectDistance = math.huge
+orb.CombineDistance = math.huge
+orb.CombineDelay = 0
+orb.SoundDistance = 0
+orb.BillboardDistance = 0
 
 local rs = game:GetService("RunService")
 local orbsFolder = workspace.__THINGS.Orbs
