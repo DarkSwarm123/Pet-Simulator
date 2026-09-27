@@ -223,7 +223,6 @@ local function TeleportToZone(zoneOffset)
 
     if not targetName then return end
 
-    -- Sprawdź, czy już jesteś w tej strefie i w dotted box
     local currentZone = MapCmds.GetCurrentZone()
     if currentZone and MapCmds.IsInDottedBox() then
         local targetCleanName = targetName:match("^%d+ | (.+)$")
@@ -306,7 +305,7 @@ local function setRendering(state)
 
     if setfpscap then
         if state then
-            setfpscap(60)
+            setfpscap(30)
         else
             setfpscap(15)
         end
@@ -322,6 +321,17 @@ OtherTab:CreateToggle({
     end,
 })
 
+local function getAmount(section, id)
+    local inventory = Save.Get().Inventory
+    if not inventory or not inventory[section] then return 0 end
+    for _, v in pairs(inventory[section]) do
+        if v.id == id then
+            return v._am or 1
+        end
+    end
+    return 0
+end
+
 OtherTab:CreateToggle({
     Name = "Auto TNT Crate",
     CurrentValue = false,
@@ -331,7 +341,7 @@ OtherTab:CreateToggle({
         if Value then
             task.spawn(function()
                 while autoConsume do
-                    if MapCmds.IsInDottedBox() then
+                    if MapCmds.IsInDottedBox() and getAmount("Misc","TNT Crate") > 0 then
                         ReplicatedStorage.Network.TNT_Crate_Consume:InvokeServer()
                         task.wait(5)
                     else
@@ -456,8 +466,7 @@ local function GetNearestBreakable()
             end
         end
     end
-    
-    -- Szukamy najbliższego, pomijając te zablokowane
+   
     local closest = nil
     local closestDist = math.huge
     local config = InstancingCmds.GetInstanceConfig()
@@ -500,7 +509,8 @@ local AutoTapToggle = OtherTab:CreateToggle({
                         elapsed = 0
                         
                         local target = GetNearestBreakable()
-                        if target then                          Network.Breakables_PlayerDealDamage:FireServer(target.Name)
+                        if target then
+                           Network.Breakables_PlayerDealDamage:FireServer(target.Name)
                         end
                     end
                 end)
@@ -512,17 +522,6 @@ local AutoTapToggle = OtherTab:CreateToggle({
 local Save = require(game:GetService("ReplicatedStorage"):WaitForChild("Library"):WaitForChild("Client"):WaitForChild("Save"))
 
 local gardenCycleEnabled = false
-
-local function getAmount(section, id)
-    local inventory = Save.Get().Inventory
-    if not inventory or not inventory[section] then return 0 end
-    for _, v in pairs(inventory[section]) do
-        if v.id == id then
-            return v._am or 1
-        end
-    end
-    return 0
-end
 
 local function sendInvoke(args)
     local ok, err = pcall(function()
@@ -610,7 +609,7 @@ local SeedBagToggle = GardenTab:CreateToggle({
                     if amount >= 1 then
                         game:GetService("ReplicatedStorage").Network.GiftBag_Open:InvokeServer("Seed Bag")
                     else
-                        task.wait(1)
+                        task.wait(5)
                     end
                 end
             end)
@@ -663,7 +662,7 @@ ItemsTab:CreateToggle({
                     game:GetService("ReplicatedStorage").Network.ForgeMachine_Activate:InvokeServer(unpack(args))
                     warn("Total amount of charms sent: " .. totalCharms)
                 end
-                task.wait(1) 
+                task.wait(5) 
             end
         end)
     end
@@ -696,7 +695,7 @@ ItemsTab:CreateToggle({
                         break
                     end
                 end
-                task.wait(1)
+                task.wait(5)
             end
         end)
     end
@@ -718,7 +717,7 @@ CharmStoneOpen = Value
                     if amount >= 1 then
                         game:GetService("ReplicatedStorage").Network.GiftBag_Open:InvokeServer("Charm Stone")
                     else
-                        task.wait()
+                        task.wait(5)
                     end
                 end
             end)
@@ -759,7 +758,7 @@ for _, name in ipairs(bagNames) do
                                 amount = getAmount("Misc", name)
                             end
                         end
-                        task.wait(1)
+                        task.wait(5)
                     end
                 end)
             end
@@ -790,7 +789,7 @@ local UltimateToggle = MainTab:CreateToggle({
                         end
                     end
                 end
-                task.wait(1)
+                task.wait(2)
             end
         end)
     end,
@@ -825,12 +824,10 @@ local DaycareToggle = MainTab:CreateToggle({
             while AutoDaycare do
                 pcall(function()
 
-                    -- 🔵 1. SNAPSHOT (to jest jedyne źródło prawdy)
                     local snapshot = Save.Get().DaycareActive or {}
                     local inventory = Save.Get().Inventory.Pet or {}
                     local maxSlots = DaycareCmds.GetMaxSlots()
 
-                    -- 🔵 2. CHECK CLAIM na snapshotcie
                     local needsClaim = false
 
                     for uuid, _ in pairs(snapshot) do
@@ -840,13 +837,11 @@ local DaycareToggle = MainTab:CreateToggle({
                         end
                     end
 
-                    -- 🔵 3. CLAIM (jeśli trzeba)
                     if needsClaim then
                         Network["Daycare: Claim"]:InvokeServer()
                         task.wait(1)
                     end
 
-                    -- 🔵 4. REENROLL NA SNAPSHOT (NIE LIVE STATE)
                     local toReenroll = {}
 
                     for _, data in pairs(snapshot) do
@@ -865,14 +860,13 @@ local DaycareToggle = MainTab:CreateToggle({
                         end
                     end
 
-                    -- 🔵 5. SEND
                     if next(toReenroll) then
                         Network["Daycare: Enroll"]:InvokeServer(toReenroll)
                     end
 
                 end)
 
-                task.wait(1)
+                task.wait(5)
             end
         end)
     end,
@@ -954,7 +948,7 @@ for _, keyData in pairs(Keys) do
                 Network[keyData.Name .. "Key_Combine"]:InvokeServer(amount)
             end
 
-            task.wait(1)
+            task.wait(3)
         end
     end
 
@@ -1005,10 +999,8 @@ MinigamesTab:CreateToggle({
                         castVector = Vector3.new(1459.0086669921875, 61.62493896484375, -4451.37548828125)
                     end
 
-                    -- 🎣 Rzut wędką
                     Network.Instancing_FireCustomFromClient:FireServer("AdvancedFishing", "RequestCast", castVector)
 
-                    -- 🔍 Szukanie bobbera
                     local bobbers = container:FindFirstChild("Bobbers")
                     local playerBobber
 
@@ -1027,7 +1019,6 @@ MinigamesTab:CreateToggle({
                         continue
                     end
 
-                    -- ⏳ Czekanie aż bobber spadnie do wody
                     local previousY
                     repeat
                         local y = playerBobber.Position.Y
@@ -1039,10 +1030,8 @@ MinigamesTab:CreateToggle({
                     local fallY = playerBobber.Position.Y
                     repeat task.wait() until not advancedFishingEnabled or playerBobber.Position.Y < fallY
 
-                    -- 🧲 Zwijanie wędki
                     Network.Instancing_FireCustomFromClient:FireServer("AdvancedFishing", "RequestReel")
 
-                    -- 🎯 Klikanie w minigrze
                     while Player.Character:FindFirstChild("Model")
                         and Player.Character.Model:FindFirstChild("Rod")
                         and Player.Character.Model.Rod:FindFirstChild("FishingLine")
@@ -1053,7 +1042,6 @@ MinigamesTab:CreateToggle({
                     end
                 end
 
-                -- 🕐 czeka sekundę przed kolejnym sprawdzeniem czy instancja istnieje
                 task.wait(1)
             end
         end)
@@ -1138,13 +1126,13 @@ end
     end,
 })
 
-game:GetService("Players").LocalPlayer.PlayerScripts.Scripts.Game["Giftbags Frontend"].Enabled = false
+LocalPlayer.PlayerScripts.Scripts.Game["Giftbags Frontend"].Enabled = false
 
-game:GetService("Players").LocalPlayer.PlayerScripts.Scripts.Game.Breakables["Breakables Frontend"].Enabled = false
+LocalPlayer.PlayerScripts.Scripts.Game.Breakables["Breakables Frontend"].Enabled = false
 
-game:GetService("Players").LocalPlayer.PlayerScripts.Scripts.Core["Idle Tracking"].Enabled = false
+LocalPlayer.PlayerScripts.Scripts.Core["Idle Tracking"].Enabled = false
 
-game:GetService("Players").LocalPlayer.Idled:Connect(function()
+LocalPlayer.Idled:Connect(function()
     local VIM = game:GetService("VirtualInputManager")
     VIM:SendMouseButtonEvent(0, 0, 0, true, game, 0)
     VIM:SendMouseButtonEvent(0, 0, 0, false, game, 0)
