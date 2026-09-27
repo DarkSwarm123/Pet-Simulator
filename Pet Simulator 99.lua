@@ -81,16 +81,6 @@ local GardenTab = CreateTab("Garden", 0)
 
 local MinigamesTab = CreateTab("Minigames", 0)
 
-local orb = require(game:GetService("ReplicatedStorage").Library.Client.OrbCmds.Orb)
-orb.DefaultPickupDistance = math.huge
-orb.CollectDistance = math.huge
-orb.CombineDistance = math.huge
-orb.CombineDelay = 0
-orb.SoundDistance = 0
-orb.BillboardDistance = 0
-
-local orbsFolder = workspace.__THINGS.Orbs
-
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -111,6 +101,31 @@ local EggCmds = require(Client.EggCmds)
 local ZoneCmds = require(Client.ZoneCmds)
 local OrbCmds = require(Client.OrbCmds)
 local Save = require(Client.Save)
+
+local orb = require(OrbCmds.Orb)
+orb.DefaultPickupDistance = math.huge
+orb.CollectDistance = math.huge
+orb.CombineDistance = math.huge
+orb.CombineDelay = 0
+orb.SoundDistance = 0
+orb.BillboardDistance = 0
+
+local orbsFolder = workspace.__THINGS.Orbs
+
+RunService.RenderStepped:Connect(function()
+    local orbs = orbsFolder:GetChildren()
+    if #orbs == 0 then return end
+    
+    local char = LocalPlayer.Character
+    local hrp = char and char:FindFirstChild("HumanoidRootPart")
+    if not hrp then return end
+    
+    for _, orb in ipairs(orbs) do
+        if orb:IsA("BasePart") then
+            orb.CFrame = hrp.CFrame
+        end
+    end
+end)
 
 local starthatch = false
 
