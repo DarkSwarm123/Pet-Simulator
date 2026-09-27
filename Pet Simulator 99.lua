@@ -66,6 +66,8 @@ local Window = Rayfield:CreateWindow({
    }
 })
 
+task.wait(1)
+
 local function CreateTab(Name, Icon)
     return Window:CreateTab(Name, Icon)
 end
@@ -79,6 +81,8 @@ local ItemsTab = CreateTab("Items", 0)
 local GardenTab = CreateTab("Garden", 0)
 
 local MinigamesTab = CreateTab("Minigames", 0)
+
+task.wait(1)
 
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
