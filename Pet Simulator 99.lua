@@ -102,6 +102,7 @@ orbsFolder.ChildAdded:Connect(function(orb)
 end)
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Network = ReplicatedStorage.Network
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 
@@ -326,7 +327,7 @@ OtherTab:CreateToggle({
             task.spawn(function()
                 while autoConsume do
                     if MapCmds.IsInDottedBox() then
-                        ReplicatedStorage.Network.TNT_Crate_Consume:InvokeServer()
+                        Network.TNT_Crate_Consume:InvokeServer()
                         task.wait(5)
                     else
                         task.wait(1)
