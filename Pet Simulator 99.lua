@@ -81,7 +81,28 @@ local GardenTab = CreateTab("Garden", 0)
 
 local MinigamesTab = CreateTab("Minigames", 0)
 
-local orb = require(game:GetService("ReplicatedStorage").Library.Client.OrbCmds.Orb)
+local RunService = game:GetService("RunService")
+local Workspace = game:GetService("Workspace")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+
+local Library = ReplicatedStorage:WaitForChild("Library")
+local Client = Library:WaitForChild("Client")
+local Network = ReplicatedStorage:WaitForChild("Network")
+
+local DaycareCmds = require(Client:WaitForChild("DaycareCmds"))
+local UltimateCmds = require(Client:WaitForChild("UltimateCmds"))
+local MapCmds = require(Client:WaitForChild("MapCmds"))
+local BreakableCmds = require(Client:WaitForChild("BreakableCmds"))
+local InstancingCmds = require(Client:WaitForChild("InstancingCmds"))
+local NotificationCmds = require(Client:WaitForChild("NotificationCmds"))
+local EggCmds = require(Client:WaitForChild("EggCmds"))
+local ZoneCmds = require(Client:WaitForChild("ZoneCmds"))
+local OrbCmds = require(Client:WaitForChild("OrbCmds"))
+local Save = require(Client:WaitForChild("Save"))
+
+local orb = require(OrbCmds.Orb)
 orb.DefaultPickupDistance = math.huge
 orb.CollectDistance = math.huge
 orb.CombineDistance = math.huge
@@ -89,26 +110,16 @@ orb.CombineDelay = 0
 orb.SoundDistance = 0
 orb.BillboardDistance = 0
 
-local rs = game:GetService("RunService")
 local orbsFolder = workspace.__THINGS.Orbs
 
 orbsFolder.ChildAdded:Connect(function(orb)
-    rs:BindToRenderStep("RemoveOrb_" .. orb:GetDebugId(), Enum.RenderPriority.Last.Value, function()
+    ReplicatedStorage:BindToRenderStep("RemoveOrb_" .. orb:GetDebugId(), Enum.RenderPriority.Last.Value, function()
         if orb and orb.Parent then
             orb:Destroy()
         end
-        rs:UnbindFromRenderStep("RemoveOrb_" .. orb:GetDebugId())
+        ReplicatedStorage:UnbindFromRenderStep("RemoveOrb_" .. orb:GetDebugId())
     end)
 end)
-
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local Players = game:GetService("Players")
-local LocalPlayer = Players.LocalPlayer
-
-local NotificationCmds = require(ReplicatedStorage.Library.Client.NotificationCmds)
-local EggCmds = require(ReplicatedStorage.Library.Client.EggCmds)
-local ZoneCmds = require(ReplicatedStorage.Library.Client.ZoneCmds)
-local MapCmds = require(ReplicatedStorage.Library.Client.MapCmds)
 
 local starthatch = false
 
@@ -217,7 +228,6 @@ local function TeleportToZone(zoneOffset)
 
     if not targetName then return end
 
-    -- Sprawdź, czy już jesteś w tej strefie i w dotted box
     local currentZone = MapCmds.GetCurrentZone()
     if currentZone and MapCmds.IsInDottedBox() then
         local targetCleanName = targetName:match("^%d+ | (.+)$")
@@ -316,6 +326,17 @@ OtherTab:CreateToggle({
     end,
 })
 
+local function getAmount(section, id)
+    local inventory = Save.Get().Inventory
+    if not inventory or not inventory[section] then return 0 end
+    for _, v in pairs(inventory[section]) do
+        if v.id == id then
+            return v._am or 1
+        end
+    end
+    return 0
+end
+
 OtherTab:CreateToggle({
     Name = "Auto TNT Crate",
     CurrentValue = false,
@@ -325,8 +346,8 @@ OtherTab:CreateToggle({
         if Value then
             task.spawn(function()
                 while autoConsume do
-                    if MapCmds.IsInDottedBox() then
-                        ReplicatedStorage.Network.TNT_Crate_Consume:InvokeServer()
+                    if MapCmds.IsInDottedBox() and getAmount("Misc","TNT Crate") > 0 then
+                        Network.TNT_Crate_Consume:InvokeServer()
                         task.wait(5)
                     else
                         task.wait(1)
@@ -419,12 +440,6 @@ local function GetCurrentCPS()
 end
 
 local function GetNearestBreakable()
-    local Players = game:GetService("Players")
-    local Workspace = game:GetService("Workspace")
-    local ReplicatedStorage = game:GetService("ReplicatedStorage")
-    local MapCmds = require(ReplicatedStorage.Library.Client.MapCmds)
-    local BreakableCmds = require(ReplicatedStorage.Library.Client.BreakableCmds)
-    local InstancingCmds = require(ReplicatedStorage.Library.Client.InstancingCmds)
     local PlayerUtils = require(ReplicatedStorage.Library.Player)
     
     local playerPos = PlayerUtils.Optional.Position()
@@ -451,7 +466,6 @@ local function GetNearestBreakable()
         end
     end
     
-    -- Szukamy najbliższego, pomijając te zablokowane
     local closest = nil
     local closestDist = math.huge
     local config = InstancingCmds.GetInstanceConfig()
@@ -478,9 +492,6 @@ local AutoTapToggle = OtherTab:CreateToggle({
         AutoBreak = Value
         if Value then
             task.spawn(function()
-                local RunService = game:GetService("RunService")
-                local ReplicatedStorage = game:GetService("ReplicatedStorage")
-                local Network = ReplicatedStorage:WaitForChild("Network")
                 
                 local elapsed = 0
                 RunService.RenderStepped:Connect(function(dt)
@@ -494,7 +505,8 @@ local AutoTapToggle = OtherTab:CreateToggle({
                         elapsed = 0
                         
                         local target = GetNearestBreakable()
-                        if target then                          Network.Breakables_PlayerDealDamage:FireServer(target.Name)
+                        if target then
+                           Network.Breakables_PlayerDealDamage:FireServer(target.Name)
                         end
                     end
                 end)
@@ -503,24 +515,11 @@ local AutoTapToggle = OtherTab:CreateToggle({
     end
 })
 
-local Save = require(game:GetService("ReplicatedStorage"):WaitForChild("Library"):WaitForChild("Client"):WaitForChild("Save"))
-
 local gardenCycleEnabled = false
-
-local function getAmount(section, id)
-    local inventory = Save.Get().Inventory
-    if not inventory or not inventory[section] then return 0 end
-    for _, v in pairs(inventory[section]) do
-        if v.id == id then
-            return v._am or 1
-        end
-    end
-    return 0
-end
 
 local function sendInvoke(args)
     local ok, err = pcall(function()
-        game.ReplicatedStorage.Network.Instancing_InvokeCustomFromClient:InvokeServer(unpack(args))
+        Network.Instancing_InvokeCustomFromClient:InvokeServer(unpack(args))
     end)
     if not ok then
         warn("Invoke failed:", err)
@@ -529,7 +528,7 @@ end
 
 local function sendFire(args)
     local ok, err = pcall(function()
-        game.ReplicatedStorage.Network.Instancing_FireCustomFromClient:FireServer(unpack(args))
+        Network.Instancing_FireCustomFromClient:FireServer(unpack(args))
     end)
     if not ok then
         warn("Fire failed:", err)
@@ -600,11 +599,11 @@ local SeedBagToggle = GardenTab:CreateToggle({
         if SeedBagEnabled then
             task.spawn(function()
                 while SeedBagEnabled do
-                    local amount = getAmount("Misc", "Seed Bag")
-                    if amount >= 1 then
+                    if getAmount("Misc", "Seed Bag") > 0 then
                         game:GetService("ReplicatedStorage").Network.GiftBag_Open:InvokeServer("Seed Bag")
+                        task.wait()
                     else
-                        task.wait(1)
+                        task.wait(5)
                     end
                 end
             end)
@@ -654,10 +653,10 @@ ItemsTab:CreateToggle({
                         [1] = "Charm Stone",
                         [2] = charmArgs
                     }
-                    game:GetService("ReplicatedStorage").Network.ForgeMachine_Activate:InvokeServer(unpack(args))
+                    Network.ForgeMachine_Activate:InvokeServer(unpack(args))
                     warn("Total amount of charms sent: " .. totalCharms)
                 end
-                task.wait(1) 
+                task.wait(5) 
             end
         end)
     end
@@ -690,7 +689,7 @@ ItemsTab:CreateToggle({
                         break
                     end
                 end
-                task.wait(1)
+                task.wait(5)
             end
         end)
     end
@@ -710,9 +709,9 @@ CharmStoneOpen = Value
                 while CharmStoneOpen do
                     local amount = getAmount("Misc", "Charm Stone")
                     if amount >= 1 then
-                        game:GetService("ReplicatedStorage").Network.GiftBag_Open:InvokeServer("Charm Stone")
+                        Network.GiftBag_Open:InvokeServer("Charm Stone")
                     else
-                        task.wait()
+                        task.wait(5)
                     end
                 end
             end)
@@ -749,7 +748,7 @@ for _, name in ipairs(bagNames) do
                                     [1] = name,
                                     [2] = size
                                 }
-                                game:GetService("ReplicatedStorage").Network.GiftBag_Open:InvokeServer(unpack(args))
+                                Network.GiftBag_Open:InvokeServer(unpack(args))
                                 amount = getAmount("Misc", name)
                             end
                         end
@@ -760,8 +759,6 @@ for _, name in ipairs(bagNames) do
         end
     })
 end
-
-local UltimateCmds = require(game:GetService("ReplicatedStorage").Library.Client.UltimateCmds)
 
 local toggleEnabled = false
 
