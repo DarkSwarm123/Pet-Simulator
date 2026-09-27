@@ -483,7 +483,7 @@ end
 
 local AutoBreak = false
 
-local AutoTapToggle = OtherTab:CreateToggle({
+OtherTab:CreateToggle({
     Name = "Auto Tap Breakables",
     CurrentValue = false,
     Flag = "AutoBreakToggle",
@@ -575,7 +575,7 @@ local function gardenCycle()
     end
 end
 
-local GardenCycleToggle = GardenTab:CreateToggle({
+GardenTab:CreateToggle({
     Name = "Enable Garden Farming",
     CurrentValue = false,
     Flag = "GardenCycleToggle",
@@ -588,7 +588,7 @@ local GardenCycleToggle = GardenTab:CreateToggle({
 })
 
 local SeedBagEnabled = false
-local SeedBagToggle = GardenTab:CreateToggle({
+GardenTab:CreateToggle({
     Name = "Open Seed Bag",
     CurrentValue = false,
     Flag = "SeedBagToggle",
@@ -696,12 +696,13 @@ ItemsTab:CreateToggle({
 local Section = ItemsTab:CreateSection("Lootboxes")
 
 local CharmStoneOpen = false
-local OpenCharmStoneToggle = ItemsTab:CreateToggle({
+
+ItemsTab:CreateToggle({
     Name = "Auto Open Charm Stone",
     CurrentValue = false,
     Flag = "OpenCharmStoneToggle",
     Callback = function(Value)
-CharmStoneOpen = Value
+   CharmStoneOpen = Value
         if CharmStoneOpen then
             task.spawn(function()
                 while CharmStoneOpen do
@@ -761,7 +762,7 @@ end
 
 local toggleEnabled = false
 
-local UltimateToggle = MainTab:CreateToggle({
+MainTab:CreateToggle({
     Name = "Auto Ultimate",
     CurrentValue = false,
     Flag = "AutoUltimateToggle",
@@ -794,7 +795,7 @@ end
 
 local AutoDaycare = false
 
-local DaycareToggle = MainTab:CreateToggle({
+MainTab:CreateToggle({
     Name = "Auto Daycare",
     CurrentValue = false,
     Flag = "AutoDaycare",
@@ -861,7 +862,7 @@ local DaycareToggle = MainTab:CreateToggle({
 
 local autoFuseEnabled = false 
 
-local FuseToggle = MainTab:CreateToggle({
+MainTab:CreateToggle({
     Name = "Auto Fuse",
     CurrentValue = false,
     Flag = "AutoFuseToggle",
@@ -910,8 +911,6 @@ task.spawn(function()
     end
 end)
 
-local Network = game:GetService("ReplicatedStorage"):WaitForChild("Network")
-
 local Section = MainTab:CreateSection("Keys")
 
 local Keys = {
@@ -938,12 +937,12 @@ for _, keyData in pairs(Keys) do
             task.wait(1)
         end
     end
-
-    MainTab:CreateToggle({
-    Name = "Craft " .. keyData.Name .. " Keys",
-    CurrentValue = false,
-    Flag = "CraftKey_" .. keyData.Name,
-    Callback = function(value)
+   
+MainTab:CreateToggle({
+   Name = "Craft " .. keyData.Name .. " Keys",
+   CurrentValue = false,
+   Flag = "CraftKey_" .. keyData.Name,
+   Callback = function(value)
         enabled = value
         if enabled then
             task.spawn(CraftKey)
@@ -955,9 +954,9 @@ end
 local advancedFishingEnabled = false
 
 MinigamesTab:CreateToggle({
-    Name = "Auto Advanced Fishing",
-    CurrentValue = false,
-    Callback = function(state)
+   Name = "Auto Advanced Fishing",
+   CurrentValue = false,
+   Callback = function(state)
         advancedFishingEnabled = state
 
         if not advancedFishingEnabled then return end
@@ -1020,10 +1019,8 @@ MinigamesTab:CreateToggle({
                     local fallY = playerBobber.Position.Y
                     repeat task.wait() until not advancedFishingEnabled or playerBobber.Position.Y < fallY
 
-                    -- 🧲 Zwijanie wędki
                     Network.Instancing_FireCustomFromClient:FireServer("AdvancedFishing", "RequestReel")
 
-                    -- 🎯 Klikanie w minigrze
                     while Player.Character:FindFirstChild("Model")
                         and Player.Character.Model:FindFirstChild("Rod")
                         and Player.Character.Model.Rod:FindFirstChild("FishingLine")
@@ -1033,8 +1030,7 @@ MinigamesTab:CreateToggle({
                         task.wait(0.75)
                     end
                 end
-
-                -- 🕐 czeka sekundę przed kolejnym sprawdzeniem czy instancja istnieje
+                  
                 task.wait(1)
             end
         end)
@@ -1119,13 +1115,13 @@ end
     end,
 })
 
-game:GetService("Players").LocalPlayer.PlayerScripts.Scripts.Game["Giftbags Frontend"].Enabled = false
+LocalPlayer.PlayerScripts.Scripts.Game["Giftbags Frontend"].Enabled = false
 
-game:GetService("Players").LocalPlayer.PlayerScripts.Scripts.Game.Breakables["Breakables Frontend"].Enabled = false
+LocalPlayer.PlayerScripts.Scripts.Game.Breakables["Breakables Frontend"].Enabled = false
 
-game:GetService("Players").LocalPlayer.PlayerScripts.Scripts.Core["Idle Tracking"].Enabled = false
+LocalPlayer.PlayerScripts.Scripts.Core["Idle Tracking"].Enabled = false
 
-game:GetService("Players").LocalPlayer.Idled:Connect(function()
+LocalPlayer.Idled:Connect(function()
     local VIM = game:GetService("VirtualInputManager")
     VIM:SendMouseButtonEvent(0, 0, 0, true, game, 0)
     VIM:SendMouseButtonEvent(0, 0, 0, false, game, 0)
