@@ -345,6 +345,8 @@ OtherTab:CreateToggle({
                     if MapCmds.IsInDottedBox() and getAmount("Misc","TNT Crate") > 0 then
                         ReplicatedStorage.Network.TNT_Crate_Consume:InvokeServer()
                         task.wait(5)
+                    else
+                        task.wait(1)
                     end
                 end
             end)
