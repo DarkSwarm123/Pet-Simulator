@@ -117,6 +117,12 @@ rs.RenderStepped:Connect(function()
             orb.CanTouch = false
             orb.CanQuery = false
 
+            if orb:IsA("MeshPart") then
+                orb:ScaleTo(0.001)
+            else
+                orb.Size = Vector3.new(0.001, 0.001, 0.001)
+            end
+
             for _, child in ipairs(orb:GetDescendants()) do
                 if child:IsA("ParticleEmitter")
                 or child:IsA("Trail")
