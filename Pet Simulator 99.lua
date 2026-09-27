@@ -11,6 +11,7 @@ if getgenv().Active then return end
 getgenv().Active = true
 
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
+print("Rayfield Loaded")
 
 task.wait(1)
 
@@ -66,8 +67,6 @@ local Window = Rayfield:CreateWindow({
    }
 })
 
-task.wait(1)
-
 local function CreateTab(Name, Icon)
     return Window:CreateTab(Name, Icon)
 end
@@ -82,30 +81,7 @@ local GardenTab = CreateTab("Garden", 0)
 
 local MinigamesTab = CreateTab("Minigames", 0)
 
-task.wait(1)
-
-local RunService = game:GetService("RunService")
-local Workspace = game:GetService("Workspace")
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local Players = game:GetService("Players")
-local LocalPlayer = Players.LocalPlayer
-
-local Library = ReplicatedStorage:WaitForChild("Library")
-local Client = Library:WaitForChild("Client")
-local Network = ReplicatedStorage:WaitForChild("Network")
-
-local DaycareCmds = require(Client:WaitForChild("DaycareCmds"))
-local UltimateCmds = require(Client:WaitForChild("UltimateCmds"))
-local MapCmds = require(Client:WaitForChild("MapCmds"))
-local BreakableCmds = require(Client:WaitForChild("BreakableCmds"))
-local InstancingCmds = require(Client:WaitForChild("InstancingCmds"))
-local NotificationCmds = require(Client:WaitForChild("NotificationCmds"))
-local EggCmds = require(Client:WaitForChild("EggCmds"))
-local ZoneCmds = require(Client:WaitForChild("ZoneCmds"))
-local OrbCmds = require(Client:WaitForChild("OrbCmds"))
-local Save = require(Client:WaitForChild("Save"))
-
-local orb = require(OrbCmds.Orb)
+local orb = require(game:GetService("ReplicatedStorage").Library.Client.OrbCmds.Orb)
 orb.DefaultPickupDistance = math.huge
 orb.CollectDistance = math.huge
 orb.CombineDistance = math.huge
@@ -113,16 +89,26 @@ orb.CombineDelay = 0
 orb.SoundDistance = 0
 orb.BillboardDistance = 0
 
+local rs = game:GetService("RunService")
 local orbsFolder = workspace.__THINGS.Orbs
 
 orbsFolder.ChildAdded:Connect(function(orb)
-    RunService:BindToRenderStep("RemoveOrb_" .. orb:GetDebugId(), Enum.RenderPriority.Last.Value, function()
+    rs:BindToRenderStep("RemoveOrb_" .. orb:GetDebugId(), Enum.RenderPriority.Last.Value, function()
         if orb and orb.Parent then
             orb:Destroy()
         end
-        RunService:UnbindFromRenderStep("RemoveOrb_" .. orb:GetDebugId())
+        rs:UnbindFromRenderStep("RemoveOrb_" .. orb:GetDebugId())
     end)
 end)
+
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+
+local NotificationCmds = require(ReplicatedStorage.Library.Client.NotificationCmds)
+local EggCmds = require(ReplicatedStorage.Library.Client.EggCmds)
+local ZoneCmds = require(ReplicatedStorage.Library.Client.ZoneCmds)
+local MapCmds = require(ReplicatedStorage.Library.Client.MapCmds)
 
 local starthatch = false
 
@@ -191,7 +177,7 @@ local function Hatch()
     end
 end
 
-local AutoHatchBestEgg = MainTab:CreateToggle({
+MainTab:CreateToggle({
     Name = "Auto Hatch Best Egg",
     CurrentValue = false,
     Flag = "AutoHatchBestEgg",
@@ -256,7 +242,7 @@ end
 
 local AutoTPBest = false
 
-local AutoTPtoBestZone = OtherTab:CreateToggle({
+OtherTab:CreateToggle({
     Name = "Auto Best Zone TP",
     CurrentValue = false,
     Flag = "AutoTPBestZone",
@@ -275,7 +261,7 @@ local AutoTPtoBestZone = OtherTab:CreateToggle({
 
 local AutoTP2ndBest = false
 
-local AutoTPto2ndBestZone = OtherTab:CreateToggle({
+OtherTab:CreateToggle({
     Name = "Auto 2nd Best Zone TP",
     CurrentValue = false,
     Flag = "AutoTP2ndBestZone",
@@ -314,7 +300,7 @@ local function setRendering(state)
 
     if setfpscap then
         if state then
-            setfpscap(30)
+            setfpscap(60)
         else
             setfpscap(15)
         end
@@ -330,17 +316,6 @@ OtherTab:CreateToggle({
     end,
 })
 
-local function getAmount(section, id)
-    local inventory = Save.Get().Inventory
-    if not inventory or not inventory[section] then return 0 end
-    for _, v in pairs(inventory[section]) do
-        if v.id == id then
-            return v._am or 1
-        end
-    end
-    return 0
-end
-
 OtherTab:CreateToggle({
     Name = "Auto TNT Crate",
     CurrentValue = false,
@@ -350,8 +325,8 @@ OtherTab:CreateToggle({
         if Value then
             task.spawn(function()
                 while autoConsume do
-                    if MapCmds.IsInDottedBox() and getAmount("Misc", "TNT Crate") > 0 then
-                        Network.TNT_Crate_Consume:InvokeServer()
+                    if MapCmds.IsInDottedBox() then
+                        ReplicatedStorage.Network.TNT_Crate_Consume:InvokeServer()
                         task.wait(5)
                     else
                         task.wait(1)
@@ -444,7 +419,14 @@ local function GetCurrentCPS()
 end
 
 local function GetNearestBreakable()
-    local PlayerUtils = require(ReplicatedStorage.Library.Player) 
+    local Players = game:GetService("Players")
+    local Workspace = game:GetService("Workspace")
+    local ReplicatedStorage = game:GetService("ReplicatedStorage")
+    local MapCmds = require(ReplicatedStorage.Library.Client.MapCmds)
+    local BreakableCmds = require(ReplicatedStorage.Library.Client.BreakableCmds)
+    local InstancingCmds = require(ReplicatedStorage.Library.Client.InstancingCmds)
+    local PlayerUtils = require(ReplicatedStorage.Library.Player)
+    
     local playerPos = PlayerUtils.Optional.Position()
     if not playerPos then return nil end
     
@@ -488,14 +470,18 @@ end
 
 local AutoBreak = false
 
-OtherTab:CreateToggle({
-    Name = "Auto Tap Breakables",
+local AutoTapToggle = OtherTab:CreateToggle({
+    Name = "Auto Tap Breakables (Nearest)",
     CurrentValue = false,
     Flag = "AutoBreakToggle",
     Callback = function(Value)
         AutoBreak = Value
         if Value then
             task.spawn(function()
+                local RunService = game:GetService("RunService")
+                local ReplicatedStorage = game:GetService("ReplicatedStorage")
+                local Network = ReplicatedStorage:WaitForChild("Network")
+                
                 local elapsed = 0
                 RunService.RenderStepped:Connect(function(dt)
                     if not AutoBreak then return end
@@ -508,8 +494,7 @@ OtherTab:CreateToggle({
                         elapsed = 0
                         
                         local target = GetNearestBreakable()
-                        if target then
-                           Network.Breakables_PlayerDealDamage:FireServer(target.Name)
+                        if target then                          Network.Breakables_PlayerDealDamage:FireServer(target.Name)
                         end
                     end
                 end)
@@ -518,11 +503,24 @@ OtherTab:CreateToggle({
     end
 })
 
+local Save = require(game:GetService("ReplicatedStorage"):WaitForChild("Library"):WaitForChild("Client"):WaitForChild("Save"))
+
 local gardenCycleEnabled = false
+
+local function getAmount(section, id)
+    local inventory = Save.Get().Inventory
+    if not inventory or not inventory[section] then return 0 end
+    for _, v in pairs(inventory[section]) do
+        if v.id == id then
+            return v._am or 1
+        end
+    end
+    return 0
+end
 
 local function sendInvoke(args)
     local ok, err = pcall(function()
-        Network.Instancing_InvokeCustomFromClient:InvokeServer(unpack(args))
+        game.ReplicatedStorage.Network.Instancing_InvokeCustomFromClient:InvokeServer(unpack(args))
     end)
     if not ok then
         warn("Invoke failed:", err)
@@ -531,7 +529,7 @@ end
 
 local function sendFire(args)
     local ok, err = pcall(function()
-        Network.Instancing_FireCustomFromClient:FireServer(unpack(args))
+        game.ReplicatedStorage.Network.Instancing_FireCustomFromClient:FireServer(unpack(args))
     end)
     if not ok then
         warn("Fire failed:", err)
@@ -580,7 +578,7 @@ local function gardenCycle()
     end
 end
 
-GardenTab:CreateToggle({
+local GardenCycleToggle = GardenTab:CreateToggle({
     Name = "Enable Garden Farming",
     CurrentValue = false,
     Flag = "GardenCycleToggle",
@@ -593,7 +591,7 @@ GardenTab:CreateToggle({
 })
 
 local SeedBagEnabled = false
-GardenTab:CreateToggle({
+local SeedBagToggle = GardenTab:CreateToggle({
     Name = "Open Seed Bag",
     CurrentValue = false,
     Flag = "SeedBagToggle",
@@ -604,7 +602,7 @@ GardenTab:CreateToggle({
                 while SeedBagEnabled do
                     local amount = getAmount("Misc", "Seed Bag")
                     if amount >= 1 then
-                        Network.GiftBag_Open:InvokeServer("Seed Bag")
+                        game:GetService("ReplicatedStorage").Network.GiftBag_Open:InvokeServer("Seed Bag")
                     else
                         task.wait(1)
                     end
@@ -656,7 +654,7 @@ ItemsTab:CreateToggle({
                         [1] = "Charm Stone",
                         [2] = charmArgs
                     }
-                    Network.ForgeMachine_Activate:InvokeServer(unpack(args))
+                    game:GetService("ReplicatedStorage").Network.ForgeMachine_Activate:InvokeServer(unpack(args))
                     warn("Total amount of charms sent: " .. totalCharms)
                 end
                 task.wait(1) 
@@ -687,7 +685,7 @@ ItemsTab:CreateToggle({
                             }
                         }
 
-                        Network.ForgeMachine_Activate:InvokeServer(unpack(args))
+                        game:GetService("ReplicatedStorage").Network.ForgeMachine_Activate:InvokeServer(unpack(args))
                         print("✅ Wysłano " .. amountToUse .. " Gift Bag do przetopu")
                         break
                     end
@@ -701,19 +699,18 @@ ItemsTab:CreateToggle({
 local Section = ItemsTab:CreateSection("Lootboxes")
 
 local CharmStoneOpen = false
-
-ItemsTab:CreateToggle({
+local OpenCharmStoneToggle = ItemsTab:CreateToggle({
     Name = "Auto Open Charm Stone",
     CurrentValue = false,
     Flag = "OpenCharmStoneToggle",
     Callback = function(Value)
-   CharmStoneOpen = Value
+CharmStoneOpen = Value
         if CharmStoneOpen then
             task.spawn(function()
                 while CharmStoneOpen do
                     local amount = getAmount("Misc", "Charm Stone")
                     if amount >= 1 then
-                        Network.GiftBag_Open:InvokeServer("Charm Stone")
+                        game:GetService("ReplicatedStorage").Network.GiftBag_Open:InvokeServer("Charm Stone")
                     else
                         task.wait()
                     end
@@ -752,7 +749,7 @@ for _, name in ipairs(bagNames) do
                                     [1] = name,
                                     [2] = size
                                 }
-                                Network.GiftBag_Open:InvokeServer(unpack(args))
+                                game:GetService("ReplicatedStorage").Network.GiftBag_Open:InvokeServer(unpack(args))
                                 amount = getAmount("Misc", name)
                             end
                         end
@@ -764,10 +761,11 @@ for _, name in ipairs(bagNames) do
     })
 end
 
+local UltimateCmds = require(game:GetService("ReplicatedStorage").Library.Client.UltimateCmds)
 
 local toggleEnabled = false
 
-MainTab:CreateToggle({
+local UltimateToggle = MainTab:CreateToggle({
     Name = "Auto Ultimate",
     CurrentValue = false,
     Flag = "AutoUltimateToggle",
@@ -798,9 +796,14 @@ local function GetPetTypeString(pt)
     else return "NORMAL" end
 end
 
+local Save = require(game:GetService("ReplicatedStorage")
+    :WaitForChild("Library")
+    :WaitForChild("Client")
+    :WaitForChild("Save"))
+
 local AutoDaycare = false
 
-MainTab:CreateToggle({
+local DaycareToggle = MainTab:CreateToggle({
     Name = "Auto Daycare",
     CurrentValue = false,
     Flag = "AutoDaycare",
@@ -809,6 +812,10 @@ MainTab:CreateToggle({
         AutoDaycare = Value
 
         task.spawn(function()
+            local ReplicatedStorage = game:GetService("ReplicatedStorage")
+            local Network = ReplicatedStorage.Network
+            local DaycareCmds = require(ReplicatedStorage.Library.Client.DaycareCmds)
+
             while AutoDaycare do
                 pcall(function()
 
@@ -867,7 +874,7 @@ MainTab:CreateToggle({
 
 local autoFuseEnabled = false 
 
-MainTab:CreateToggle({
+local FuseToggle = MainTab:CreateToggle({
     Name = "Auto Fuse",
     CurrentValue = false,
     Flag = "AutoFuseToggle",
@@ -916,6 +923,8 @@ task.spawn(function()
     end
 end)
 
+local Network = game:GetService("ReplicatedStorage"):WaitForChild("Network")
+
 local Section = MainTab:CreateSection("Keys")
 
 local Keys = {
@@ -942,12 +951,12 @@ for _, keyData in pairs(Keys) do
             task.wait(1)
         end
     end
-   
-MainTab:CreateToggle({
-   Name = "Craft " .. keyData.Name .. " Keys",
-   CurrentValue = false,
-   Flag = "CraftKey_" .. keyData.Name,
-   Callback = function(value)
+
+    MainTab:CreateToggle({
+    Name = "Craft " .. keyData.Name .. " Keys",
+    CurrentValue = false,
+    Flag = "CraftKey_" .. keyData.Name,
+    Callback = function(value)
         enabled = value
         if enabled then
             task.spawn(CraftKey)
@@ -959,9 +968,9 @@ end
 local advancedFishingEnabled = false
 
 MinigamesTab:CreateToggle({
-   Name = "Auto Advanced Fishing",
-   CurrentValue = false,
-   Callback = function(state)
+    Name = "Auto Advanced Fishing",
+    CurrentValue = false,
+    Callback = function(state)
         advancedFishingEnabled = state
 
         if not advancedFishingEnabled then return end
@@ -1024,8 +1033,10 @@ MinigamesTab:CreateToggle({
                     local fallY = playerBobber.Position.Y
                     repeat task.wait() until not advancedFishingEnabled or playerBobber.Position.Y < fallY
 
+                    -- 🧲 Zwijanie wędki
                     Network.Instancing_FireCustomFromClient:FireServer("AdvancedFishing", "RequestReel")
 
+                    -- 🎯 Klikanie w minigrze
                     while Player.Character:FindFirstChild("Model")
                         and Player.Character.Model:FindFirstChild("Rod")
                         and Player.Character.Model.Rod:FindFirstChild("FishingLine")
@@ -1035,7 +1046,8 @@ MinigamesTab:CreateToggle({
                         task.wait(0.75)
                     end
                 end
-                  
+
+                -- 🕐 czeka sekundę przed kolejnym sprawdzeniem czy instancja istnieje
                 task.wait(1)
             end
         end)
@@ -1120,13 +1132,13 @@ end
     end,
 })
 
-LocalPlayer.PlayerScripts.Scripts.Game["Giftbags Frontend"].Enabled = false
+game:GetService("Players").LocalPlayer.PlayerScripts.Scripts.Game["Giftbags Frontend"].Enabled = false
 
-LocalPlayer.PlayerScripts.Scripts.Game.Breakables["Breakables Frontend"].Enabled = false
+game:GetService("Players").LocalPlayer.PlayerScripts.Scripts.Game.Breakables["Breakables Frontend"].Enabled = false
 
-LocalPlayer.PlayerScripts.Scripts.Core["Idle Tracking"].Enabled = false
+game:GetService("Players").LocalPlayer.PlayerScripts.Scripts.Core["Idle Tracking"].Enabled = false
 
-LocalPlayer.Idled:Connect(function()
+game:GetService("Players").LocalPlayer.Idled:Connect(function()
     local VIM = game:GetService("VirtualInputManager")
     VIM:SendMouseButtonEvent(0, 0, 0, true, game, 0)
     VIM:SendMouseButtonEvent(0, 0, 0, false, game, 0)
