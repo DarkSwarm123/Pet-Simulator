@@ -326,7 +326,7 @@ local function setRendering(state)
 
     if setfpscap then
         if state then
-            setfpscap(30)
+            setfpscap(20)
         else
             setfpscap(15)
         end
@@ -341,6 +341,8 @@ OtherTab:CreateToggle({
         setRendering(not Value)
     end,
 })
+
+local Save = require(game:GetService("ReplicatedStorage"):WaitForChild("Library"):WaitForChild("Client"):WaitForChild("Save"))
 
 local function getAmount(section, id)
     local inventory = Save.Get().Inventory
