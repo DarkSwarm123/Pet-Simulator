@@ -10,8 +10,33 @@ end
 if getgenv().Active then return end
 getgenv().Active = true
 
+local RunService = game:GetService("RunService")
+local Workspace = game:GetService("Workspace")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+
+local Library = ReplicatedStorage:WaitForChild("Library")
+local Client = Library:WaitForChild("Client")
+local Network = ReplicatedStorage:WaitForChild("Network")
+
+local DaycareCmds = require(Client:WaitForChild("DaycareCmds"))
+local UltimateCmds = require(Client:WaitForChild("UltimateCmds"))
+local MapCmds = require(Client:WaitForChild("MapCmds"))
+local BreakableCmds = require(Client:WaitForChild("BreakableCmds"))
+local InstancingCmds = require(Client:WaitForChild("InstancingCmds"))
+local NotificationCmds = require(Client:WaitForChild("NotificationCmds"))
+local EggCmds = require(Client:WaitForChild("EggCmds"))
+local ZoneCmds = require(Client:WaitForChild("ZoneCmds"))
+local OrbCmds = require(Client:WaitForChild("OrbCmds"))
+local Save = require(Client:WaitForChild("Save"))
+
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
-print("Rayfield Loaded")
+
+NotificationCmds.Message.Bottom({
+      Message = "Rayfield Loaded",
+      Color = Color3.fromRGB(0, 0, 255)
+   })
 
 task.wait(1)
 
@@ -81,7 +106,7 @@ local GardenTab = CreateTab("Garden", 0)
 
 local MinigamesTab = CreateTab("Minigames", 0)
 
-local orb = require(game:GetService("ReplicatedStorage").Library.Client.OrbCmds.Orb)
+local orb = require(OrbCmds.Orb)
 orb.DefaultPickupDistance = math.huge
 orb.CollectDistance = math.huge
 orb.CombineDistance = math.huge
@@ -89,37 +114,16 @@ orb.CombineDelay = 0
 orb.SoundDistance = 0
 orb.BillboardDistance = 0
 
-local rs = game:GetService("RunService")
 local orbsFolder = workspace.__THINGS.Orbs
 
 orbsFolder.ChildAdded:Connect(function(orb)
-    rs:BindToRenderStep("RemoveOrb_" .. orb:GetDebugId(), Enum.RenderPriority.Last.Value, function()
+    RunService:BindToRenderStep("RemoveOrb_" .. orb:GetDebugId(), Enum.RenderPriority.Last.Value, function()
         if orb and orb.Parent then
             orb:Destroy()
         end
-        rs:UnbindFromRenderStep("RemoveOrb_" .. orb:GetDebugId())
+        RunService:UnbindFromRenderStep("RemoveOrb_" .. orb:GetDebugId())
     end)
 end)
-
-local RunService = game:GetService("RunService")
-local Workspace = game:GetService("Workspace")
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local Players = game:GetService("Players")
-local LocalPlayer = Players.LocalPlayer
-
-local Library = ReplicatedStorage:WaitForChild("Library")
-local Client = Library:WaitForChild("Client")
-local Network = ReplicatedStorage:WaitForChild("Network")
-
-local DaycareCmds = require(Client:WaitForChild("DaycareCmds"))
-local UltimateCmds = require(Client:WaitForChild("UltimateCmds"))
-local MapCmds = require(Client:WaitForChild("MapCmds"))
-local BreakableCmds = require(Client:WaitForChild("BreakableCmds"))
-local InstancingCmds = require(Client:WaitForChild("InstancingCmds"))
-local NotificationCmds = require(Client:WaitForChild("NotificationCmds"))
-local EggCmds = require(Client:WaitForChild("EggCmds"))
-local ZoneCmds = require(Client:WaitForChild("ZoneCmds"))
-local Save = require(Client:WaitForChild("Save"))
 
 local starthatch = false
 
