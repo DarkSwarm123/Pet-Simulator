@@ -89,18 +89,6 @@ orb.CombineDelay = 0
 orb.SoundDistance = 0
 orb.BillboardDistance = 0
 
-local rs = game:GetService("RunService")
-local orbsFolder = workspace.__THINGS.Orbs
-
-orbsFolder.ChildAdded:Connect(function(orb)
-    rs:BindToRenderStep("RemoveOrb_" .. orb:GetDebugId(), Enum.RenderPriority.Last.Value, function()
-        if orb and orb.Parent then
-            orb:Destroy()
-        end
-        rs:UnbindFromRenderStep("RemoveOrb_" .. orb:GetDebugId())
-    end)
-end)
-
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
@@ -109,6 +97,24 @@ local NotificationCmds = require(ReplicatedStorage.Library.Client.NotificationCm
 local EggCmds = require(ReplicatedStorage.Library.Client.EggCmds)
 local ZoneCmds = require(ReplicatedStorage.Library.Client.ZoneCmds)
 local MapCmds = require(ReplicatedStorage.Library.Client.MapCmds)
+
+local rs = game:GetService("RunService")
+local orbsFolder = workspace.__THINGS.Orbs
+
+RunService.RenderStepped:Connect(function()
+    local orbs = orbsFolder:GetChildren()
+    if #orbs == 0 then return end
+    
+    local char = LocalPlayer.Character
+    local hrp = char and char:FindFirstChild("HumanoidRootPart")
+    if not hrp then return end
+    
+    for _, orb in ipairs(orbs) do
+        if orb:IsA("BasePart") then
+            orb.CFrame = hrp.CFrame
+        end
+    end
+end)
 
 local starthatch = false
 
