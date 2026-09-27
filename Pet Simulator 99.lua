@@ -300,7 +300,7 @@ local function setRendering(state)
 
     if setfpscap then
         if state then
-            setfpscap(60)
+            setfpscap(30)
         else
             setfpscap(15)
         end
