@@ -79,6 +79,7 @@ local ItemsTab = CreateTab("Items", 0)
 local GardenTab = CreateTab("Garden", 0)
 
 local MinigamesTab = CreateTab("Minigames", 0)
+
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -186,7 +187,7 @@ local function Hatch()
     end
 end
 
-MainTab:CreateToggle({
+local AutoHatchBestEgg = MainTab:CreateToggle({
     Name = "Auto Hatch Best Egg",
     CurrentValue = false,
     Flag = "AutoHatchBestEgg",
@@ -251,7 +252,7 @@ end
 
 local AutoTPBest = false
 
-OtherTab:CreateToggle({
+local AutoTPtoBestZone = OtherTab:CreateToggle({
     Name = "Auto Best Zone TP",
     CurrentValue = false,
     Flag = "AutoTPBestZone",
@@ -270,7 +271,7 @@ OtherTab:CreateToggle({
 
 local AutoTP2ndBest = false
 
-OtherTab:CreateToggle({
+local AutoTPto2ndBestZone = OtherTab:CreateToggle({
     Name = "Auto 2nd Best Zone TP",
     CurrentValue = false,
     Flag = "AutoTP2ndBestZone",
