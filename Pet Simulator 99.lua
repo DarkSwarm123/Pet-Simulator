@@ -89,26 +89,28 @@ orb.CombineDelay = 0
 orb.SoundDistance = 0
 orb.BillboardDistance = 0
 
-local rs = game:GetService("RunService")
 local orbsFolder = workspace.__THINGS.Orbs
 
-orbsFolder.ChildAdded:Connect(function(orb)
-    rs:BindToRenderStep("RemoveOrb_" .. orb:GetDebugId(), Enum.RenderPriority.Last.Value, function()
-        if orb and orb.Parent then
-            orb:Destroy()
-        end
-        rs:UnbindFromRenderStep("RemoveOrb_" .. orb:GetDebugId())
-    end)
-end)
-
+local RunService = game:GetService("RunService")
+local Workspace = game:GetService("Workspace")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 
-local NotificationCmds = require(ReplicatedStorage.Library.Client.NotificationCmds)
-local EggCmds = require(ReplicatedStorage.Library.Client.EggCmds)
-local ZoneCmds = require(ReplicatedStorage.Library.Client.ZoneCmds)
-local MapCmds = require(ReplicatedStorage.Library.Client.MapCmds)
+local Library = ReplicatedStorage:WaitForChild("Library")
+local Client = Library:WaitForChild("Client")
+local Network = ReplicatedStorage.Network
+
+local DaycareCmds = require(Client.DaycareCmds)
+local UltimateCmds = require(Client.UltimateCmds)
+local MapCmds = require(Client.MapCmds)
+local BreakableCmds = require(Client.BreakableCmds)
+local InstancingCmds = require(Client.InstancingCmds)
+local NotificationCmds = require(Client.NotificationCmds)
+local EggCmds = require(Client.EggCmds)
+local ZoneCmds = require(Client.ZoneCmds)
+local OrbCmds = require(Client.OrbCmds)
+local Save = require(Client.Save)
 
 local starthatch = false
 
