@@ -97,45 +97,9 @@ orb.CombineDistance = math.huge
 orb.CombineDelay = 0
 orb.SoundDistance = 0
 orb.BillboardDistance = 0
+orb.RenderParticles = function() end
 
-local rs = game:GetService("RunService")
 local orbsFolder = workspace.__THINGS.Orbs
-
-rs.RenderStepped:Connect(function()
-    local orbs = orbsFolder:GetChildren()
-    if #orbs == 0 then return end
-
-    local char = LocalPlayer.Character
-    local hrp = char and char:FindFirstChild("HumanoidRootPart")
-    if not hrp then return end
-
-    for _, orb in ipairs(orbs) do
-        if orb:IsA("BasePart") then
-            orb.CFrame = hrp.CFrame
-            orb.Transparency = 1
-            orb.CanCollide = false
-            orb.CanTouch = false
-            orb.CanQuery = false
-
-            if orb:IsA("MeshPart") then
-                orb:ScaleTo(0.001)
-            else
-                orb.Size = Vector3.new(0.001, 0.001, 0.001)
-            end
-
-            for _, child in ipairs(orb:GetDescendants()) do
-                if child:IsA("ParticleEmitter")
-                or child:IsA("Trail")
-                or child:IsA("Beam")
-                or child:IsA("Fire")
-                or child:IsA("Smoke")
-                or child:IsA("Sparkles") then
-                    child.Enabled = false
-                end
-            end
-        end
-    end
-end)
 
 local starthatch = false
 
