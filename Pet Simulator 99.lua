@@ -135,11 +135,43 @@ Eggs_PlayOpenAnimation.OnClientEvent:Connect(function(...)
     end
 end)
 
+local InfinityEggCmds = require(ReplicatedStorage.Library.Client.InfinityEggCmds)
+
+local function getEligibleKey()
+    local key = {}
+    for _, egg in ipairs(InfinityEggCmds.GetEligibleEggs()) do
+        table.insert(key, egg._id)
+    end
+    table.sort(key)
+    return table.concat(key, ",")
+end
+
+local function disableWorldsAndEnableIncomplete()
+    for _, worldNum in ipairs(InfinityEggCmds.GetWorldNumbers()) do
+        pcall(function()
+            InfinityEggCmds.SetWorldDisabled(worldNum, true)
+        end)
+        task.wait()
+    end
+
+    for _, egg in ipairs(InfinityEggCmds.GetEligibleEggs()) do
+        local have, total, complete = InfinityEggCmds.GetHatchProgress(egg)
+        if not complete then
+            pcall(function()
+                InfinityEggCmds.SetDisabled(egg._id, false)
+            end)
+            task.wait()
+        end
+    end
+end
+
 local function Hatch()
     isAnimationEnabled = false
 
-    local InfinityEggCmds = require(ReplicatedStorage.Library.Client.InfinityEggCmds)
     local hatchCounter = 0
+    local lastEligibleKey = getEligibleKey()
+
+    disableWorldsAndEnableIncomplete()
 
     local ok, err = pcall(function()
         while starthatch do
@@ -159,21 +191,10 @@ local function Hatch()
             if hatchCounter >= 10 then
                 hatchCounter = 0
 
-                for _, worldNum in ipairs(InfinityEggCmds.GetWorldNumbers()) do
-                    pcall(function()
-                        InfinityEggCmds.SetWorldDisabled(worldNum, true)
-                    end)
-                    task.wait()
-                end
-
-                for _, egg in ipairs(InfinityEggCmds.GetEligibleEggs()) do
-                    local have, total, complete = InfinityEggCmds.GetHatchProgress(egg)
-                    if not complete then
-                        pcall(function()
-                            InfinityEggCmds.SetDisabled(egg._id, false)
-                        end)
-                        task.wait()
-                    end
+                local currentKey = getEligibleKey()
+                if currentKey ~= lastEligibleKey then
+                    lastEligibleKey = currentKey
+                    disableWorldsAndEnableIncomplete()
                 end
             end
         end
