@@ -158,10 +158,10 @@ local function Hatch()
             hatchCounter += 1
             if hatchCounter >= 10 then
                 hatchCounter = 0
-               
+
                 for _, worldNum in ipairs(InfinityEggCmds.GetWorldNumbers()) do
                     pcall(function()
-                        InfinityEggCmds.SetWorldDisabled:InvokeServer(worldNum, true)
+                        InfinityEggCmds.SetWorldDisabled(worldNum, true)
                     end)
                     task.wait()
                 end
