@@ -99,7 +99,27 @@ orb.SoundDistance = 0
 orb.BillboardDistance = 0
 orb.RenderParticles = function() end
 
+local RunService = game:GetService("RunService")
 local orbsFolder = workspace.__THINGS.Orbs
+
+RunService.RenderStepped:Connect(function()
+    local orbs = orbsFolder:GetChildren()
+    if #orbs == 0 then return end
+
+    local char = LocalPlayer.Character
+    local hrp = char and char:FindFirstChild("HumanoidRootPart")
+    if not hrp then return end
+
+    for _, orb in ipairs(orbs) do
+        if orb:IsA("BasePart") then
+            orb.CFrame = hrp.CFrame + Vector3.new(0, 1000, 0)
+            orb.Transparency = 1
+            orb.CanCollide = false
+            orb.CanTouch = false
+            orb.CanQuery = false
+        end
+    end
+end)
 
 local starthatch = false
 
