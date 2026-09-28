@@ -124,7 +124,7 @@ end)
 local starthatch = false
 local isAnimationEnabled = true
 
-local Eggs_PlayOpenAnimation = game:GetService("ReplicatedStorage").Network.Eggs_PlayOpenAnimation
+local Eggs_PlayOpenAnimation = ReplicatedStorage.Network.Eggs_PlayOpenAnimation
 
 Eggs_PlayOpenAnimation.OnClientEvent:Connect(function(...)
     if not isAnimationEnabled then
