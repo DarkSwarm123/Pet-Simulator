@@ -122,21 +122,27 @@ RunService.RenderStepped:Connect(function()
 end)
 
 local starthatch = false
+local isAnimationEnabled = true
+
+local Eggs_PlayOpenAnimation = game:GetService("ReplicatedStorage").Network.Eggs_PlayOpenAnimation
+
+Eggs_PlayOpenAnimation.OnClientEvent:Connect(function(...)
+    if not isAnimationEnabled then
+        return
+    end
+end)
 
 local function Hatch()
-    local Eggs_PlayOpenAnimation = ReplicatedStorage.Network.Eggs_PlayOpenAnimation
-
-    Eggs_PlayOpenAnimation.Enabled = false
+    isAnimationEnabled = false
 
     local ok, err = pcall(function()
         while starthatch do
-
-            local Egg = Infinity Egg
+            local Egg = "Infinity Egg"
 
             task.wait(EggCmds.ComputeDebounce() or 1)
 
             local success, err = pcall(function()
-                EggCmds.RequestPurchase("Egg", EggCmds.GetMaxHatch())
+                EggCmds.RequestPurchase(Egg, EggCmds.GetMaxHatch())
             end)
 
             if not success then
@@ -145,7 +151,7 @@ local function Hatch()
         end
     end)
 
-    Eggs_PlayOpenAnimation.Enabled = true
+    isAnimationEnabled = true
 
     if not ok then
         warn("Hatch loop error:", err)
