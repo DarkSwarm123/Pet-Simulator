@@ -154,8 +154,6 @@ local function Hatch()
         end
     end)
 
-    isAnimationEnabled = true
-
     if not ok then
         warn("Hatch loop error:", err)
     end
