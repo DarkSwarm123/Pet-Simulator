@@ -106,17 +106,20 @@ RunService.RenderStepped:Connect(function()
     local orbs = orbsFolder:GetChildren()
     if #orbs == 0 then return end
 
-    local char = LocalPlayer.Character
-    local hrp = char and char:FindFirstChild("HumanoidRootPart")
-    if not hrp then return end
+    local ids = {}
+    for _, orb in ipairs(orbs) do
+        if orb:IsA("BasePart") then
+            table.insert(ids, orb.Name)
+        end
+    end
+
+    if #ids > 0 then
+        ReplicatedStorage.Network["Orbs: Collect"]:FireServer(ids)
+    end
 
     for _, orb in ipairs(orbs) do
         if orb:IsA("BasePart") then
-            orb.CFrame = hrp.CFrame + Vector3.new(0, 1000, 0)
-            orb.Transparency = 1
-            orb.CanCollide = false
-            orb.CanTouch = false
-            orb.CanQuery = false
+            orb:Destroy()
         end
     end
 end)
