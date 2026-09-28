@@ -136,6 +136,7 @@ Eggs_PlayOpenAnimation.OnClientEvent:Connect(function(...)
 end)
 
 local InfinityEggCmds = require(ReplicatedStorage.Library.Client.InfinityEggCmds)
+local CurrencyCmds = require(ReplicatedStorage.Library.Client.CurrencyCmds)
 
 local function getEligibleKey()
     local key = {}
@@ -172,10 +173,27 @@ local function Hatch()
     local hatchCounter = 0
     local lastEligibleKey = getEligibleKey()
 
+    local cost, currency = InfinityEggCmds.GetCost()
+    local amount = CurrencyCmds.Get(currency)
+    local maxHatch = EggCmds.GetMaxHatch()
+
+    if not CurrencyCmds.CanAfford(currency, cost) then
+        warn("❌ Brakuje Ci", cost - amount, currency)
+        return
+    end
+
     disableWorldsAndEnableIncomplete()
 
     local ok, err = pcall(function()
         while starthatch do
+            local cost, currency = InfinityEggCmds.GetCost()
+
+            if not CurrencyCmds.CanAfford(currency, cost) then
+                warn("❌ Skończyła się waluta! Czekam...")
+                task.wait(10)
+                continue
+            end
+
             local Egg = "Infinity Egg"
 
             task.wait(EggCmds.ComputeDebounce() or 1)
