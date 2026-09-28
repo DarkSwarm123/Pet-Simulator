@@ -177,11 +177,6 @@ local function Hatch()
     local amount = CurrencyCmds.Get(currency)
     local maxHatch = EggCmds.GetMaxHatch()
 
-    if not CurrencyCmds.CanAfford(currency, cost) then
-        warn("❌ Brakuje Ci", cost - amount, currency)
-        return
-    end
-
     disableWorldsAndEnableIncomplete()
 
     local ok, err = pcall(function()
