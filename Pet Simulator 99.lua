@@ -161,7 +161,7 @@ local function Hatch()
                
                 for _, worldNum in ipairs(InfinityEggCmds.GetWorldNumbers()) do
                     pcall(function()
-                        ReplicatedStorage.Network.InfinityEgg_SetWorldDisabled:InvokeServer(worldNum, true)
+                        InfinityEggCmds.SetWorldDisabled:InvokeServer(worldNum, true)
                     end)
                     task.wait()
                 end
