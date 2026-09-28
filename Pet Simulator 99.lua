@@ -126,7 +126,7 @@ end)
 
 local starthatch = false
 local isAnimationEnabled = true
-
+local frontend = LocalPlayer.PlayerScripts:WaitForChild("Scripts"):WaitForChild("Game"):WaitForChild("Egg Opening Frontend")
 local Eggs_PlayOpenAnimation = ReplicatedStorage.Network.Eggs_PlayOpenAnimation
 
 Eggs_PlayOpenAnimation.OnClientEvent:Connect(function(...)
@@ -167,6 +167,7 @@ end
 
 local function Hatch()
     isAnimationEnabled = false
+    frontend.Enabled = false
 
     local hatchCounter = 0
     local lastEligibleKey = getEligibleKey()
