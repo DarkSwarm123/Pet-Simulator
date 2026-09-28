@@ -123,56 +123,20 @@ end)
 
 local starthatch = false
 
-local EggsFolder = ReplicatedStorage:WaitForChild("__DIRECTORY")
-    :WaitForChild("Eggs")
-    :WaitForChild("Zone Eggs")
-
-local function GetEggNameFromZone(maxZoneData)
-    local num = tostring(maxZoneData.MaximumAvailableEgg)
-
-    for _, egg in ipairs(EggsFolder:GetDescendants()) do
-        if egg.Name:match("^" .. num .. " |") then
-            local clean = egg.Name:match("^%d+ | (.+)$")
-            return clean
-        end
-    end
-
-    return nil
-end
-
 local function Hatch()
-    local frontend = LocalPlayer.PlayerScripts
-        :WaitForChild("Scripts")
-        :WaitForChild("Game")
-        :WaitForChild("Egg Opening Frontend")
+    local Eggs_PlayOpenAnimation = ReplicatedStorage.Network.Eggs_PlayOpenAnimation
 
-    frontend.Enabled = false
+    Eggs_PlayOpenAnimation.Enabled = false
 
     local ok, err = pcall(function()
         while starthatch do
-            local maxZoneData = ZoneCmds.GetMaximumZone()
 
-            if not maxZoneData or not maxZoneData.MaximumAvailableEgg then
-                NotificationCmds.Message.Bottom({
-                    Message = "❌ Zone data download failed!",
-                    Color = Color3.fromRGB(255, 0, 0)
-                })
-                task.wait(1)
-                continue
-            end
-
-            local Egg = GetEggNameFromZone(maxZoneData)
-
-            if not Egg then
-                warn("Nie znaleziono egg dla:", maxZoneData.MaximumAvailableEgg)
-                task.wait(1)
-                continue
-            end
+            local Egg = Infinity Egg
 
             task.wait(EggCmds.ComputeDebounce() or 1)
 
             local success, err = pcall(function()
-                EggCmds.RequestPurchase(Egg, EggCmds.GetMaxHatch())
+                EggCmds.RequestPurchase("Egg", EggCmds.GetMaxHatch())
             end)
 
             if not success then
@@ -181,7 +145,7 @@ local function Hatch()
         end
     end)
 
-    frontend.Enabled = true
+    Eggs_PlayOpenAnimation.Enabled = true
 
     if not ok then
         warn("Hatch loop error:", err)
@@ -189,7 +153,7 @@ local function Hatch()
 end
 
 MainTab:CreateToggle({
-    Name = "Auto Hatch Best Egg",
+    Name = "Auto Hatch Infinity Egg",
     CurrentValue = false,
     Flag = "AutoHatchBestEgg",
     Callback = function(Value)
