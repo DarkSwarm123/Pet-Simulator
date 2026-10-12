@@ -1177,3 +1177,5 @@ LocalPlayer.Idled:Connect(function()
 end)
 
 Rayfield:LoadConfiguration()
+
+Window:Toggle()
