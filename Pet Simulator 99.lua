@@ -138,16 +138,18 @@ end)
 local InfinityEggCmds = require(ReplicatedStorage.Library.Client.InfinityEggCmds)
 local CurrencyCmds = require(ReplicatedStorage.Library.Client.CurrencyCmds)
 
-local function getEligibleKey()
+local function getProgressKey()
     local key = {}
     for _, egg in ipairs(InfinityEggCmds.GetEligibleEggs()) do
-        table.insert(key, egg._id)
+        local _, _, complete = InfinityEggCmds.GetHatchProgress(egg)
+        table.insert(key, egg._id .. ":" .. tostring(complete))
     end
     table.sort(key)
     return table.concat(key, ",")
 end
 
 local function disableWorldsAndEnableIncomplete()
+
     for _, worldNum in ipairs(InfinityEggCmds.GetWorldNumbers()) do
         pcall(function()
             InfinityEggCmds.SetWorldDisabled(worldNum, true)
@@ -155,13 +157,34 @@ local function disableWorldsAndEnableIncomplete()
         task.wait()
     end
 
-    for _, egg in ipairs(InfinityEggCmds.GetEligibleEggs()) do
-        local have, total, complete = InfinityEggCmds.GetHatchProgress(egg)
+    local allEggs = InfinityEggCmds.GetEligibleEggs()
+    local incompleteEggs = {}
+
+    for _, egg in ipairs(allEggs) do
+        local _, _, complete = InfinityEggCmds.GetHatchProgress(egg)
         if not complete then
+            table.insert(incompleteEggs, egg)
+        end
+    end
+
+    if #incompleteEggs > 0 then
+        for _, egg in ipairs(incompleteEggs) do
             pcall(function()
                 InfinityEggCmds.SetDisabled(egg._id, false)
             end)
             task.wait()
+        end
+        print(string.format("🎯 Włączono %d niekompletnych jajek.", #incompleteEggs))
+    else
+        -- 4. Wszystko skompletowane – włącz TYLKO najlepsze jajko
+        local bestEgg = allEggs[#allEggs]
+        if bestEgg then
+            pcall(function()
+                InfinityEggCmds.SetDisabled(bestEgg._id, false)
+            end)
+            print("✅ Wszystko skompletowane – hatchuję najlepsze jajko:", bestEgg._id)
+        else
+            warn("❌ Brak jajek do hatchowania!")
         end
     end
 end
@@ -171,11 +194,7 @@ local function Hatch()
     frontend.Enabled = false
 
     local hatchCounter = 0
-    local lastEligibleKey = getEligibleKey()
-
-    local cost, currency = InfinityEggCmds.GetCost()
-    local amount = CurrencyCmds.Get(currency)
-    local maxHatch = EggCmds.GetMaxHatch()
+    local lastProgressKey = getProgressKey()
 
     disableWorldsAndEnableIncomplete()
 
@@ -205,14 +224,17 @@ local function Hatch()
             if hatchCounter >= 10 then
                 hatchCounter = 0
 
-                local currentKey = getEligibleKey()
-                if currentKey ~= lastEligibleKey then
-                    lastEligibleKey = currentKey
+                local currentKey = getProgressKey()
+                if currentKey ~= lastProgressKey then
+                    lastProgressKey = currentKey
                     disableWorldsAndEnableIncomplete()
                 end
             end
         end
     end)
+
+    isAnimationEnabled = true
+    frontend.Enabled = true
 
     if not ok then
         warn("Hatch loop error:", err)
