@@ -155,33 +155,13 @@ local function disableWorldsAndEnableIncomplete()
         task.wait()
     end
 
-    local allEggs = InfinityEggCmds.GetEligibleEggs()
-    local incompleteEggs = {}
-
-    for _, egg in ipairs(allEggs) do
-        local _, _, complete = InfinityEggCmds.GetHatchProgress(egg)
+    for _, egg in ipairs(InfinityEggCmds.GetEligibleEggs()) do
+        local have, total, complete = InfinityEggCmds.GetHatchProgress(egg)
         if not complete then
-            table.insert(incompleteEggs, egg)
-        end
-    end
-
-    if #incompleteEggs > 0 then
-        for _, egg in ipairs(incompleteEggs) do
             pcall(function()
                 InfinityEggCmds.SetDisabled(egg._id, false)
             end)
             task.wait()
-        end
-        print(string.format("🎯 Włączono %d niekompletnych jajek.", #incompleteEggs))
-    else
-        local bestEgg = allEggs[#allEggs]
-        if bestEgg then
-            pcall(function()
-                InfinityEggCmds.SetDisabled(bestEgg._id, false)
-            end)
-            print("✅ Wszystko skompletowane – hatchuję najlepsze jajko:", bestEgg._id)
-        else
-            warn("❌ Brak jajek do hatchowania!")
         end
     end
 end
