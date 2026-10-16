@@ -233,9 +233,6 @@ local function Hatch()
         end
     end)
 
-    isAnimationEnabled = true
-    frontend.Enabled = true
-
     if not ok then
         warn("Hatch loop error:", err)
     end
