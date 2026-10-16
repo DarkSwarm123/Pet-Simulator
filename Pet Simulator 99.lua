@@ -166,26 +166,75 @@ local function disableWorldsAndEnableIncomplete()
     end
 end
 
+local function Hatch()
+    isAnimationEnabled = false
+    frontend.Enabled = false
+
+    local hatchCounter = 0
+    local lastEligibleKey = getEligibleKey()
+
+    local cost, currency = InfinityEggCmds.GetCost()
+    local amount = CurrencyCmds.Get(currency)
+    local maxHatch = EggCmds.GetMaxHatch()
+
+    disableWorldsAndEnableIncomplete()
+
+    local ok, err = pcall(function()
+        while starthatch do
+            local cost, currency = InfinityEggCmds.GetCost()
+
+            if not CurrencyCmds.CanAfford(currency, cost) then
+                warn("❌ Skończyła się waluta! Czekam...")
+                task.wait(10)
+                continue
+            end
+
+            local Egg = "Infinity Egg"
+
+            task.wait(EggCmds.ComputeDebounce() or 1)
+
+            local success, err = pcall(function()
+                EggCmds.RequestPurchase(Egg, EggCmds.GetMaxHatch())
+            end)
+
+            if not success then
+                warn("Hatch error:", err)
+            end
+
+            hatchCounter += 1
+            if hatchCounter >= 10 then
+                hatchCounter = 0
+
+                local currentKey = getEligibleKey()
+                if currentKey ~= lastEligibleKey then
+                    lastEligibleKey = currentKey
+                    disableWorldsAndEnableIncomplete()
+                end
+            end
+        end
+    end)
+
+    if not ok then
+        warn("Hatch loop error:", err)
+    end
+end
+
 MainTab:CreateToggle({
     Name = "Auto Hatch Infinity Egg",
     CurrentValue = false,
     Flag = "AutoHatchBestEgg",
     Callback = function(Value)
-        task.spawn(function()
-            while not getgenv().ready do
-                task.wait()
-            end
+        starthatch = Value
 
-            starthatch = Value
-
-            if starthatch then
+        if starthatch then
+            task.spawn(function()
                 local ok, err = pcall(Hatch)
                 if not ok then
                     warn("Toggle error:", err)
                     starthatch = false
                 end
-            end
-        end)
+            end)
+        end
     end
 })
 
@@ -1127,6 +1176,6 @@ LocalPlayer.Idled:Connect(function()
     VIM:SendMouseButtonEvent(0, 0, 0, false, game, 0)
 end)
 
-getgenv().ready = true
-
 Rayfield:LoadConfiguration()
+
+Window:Toggle()
