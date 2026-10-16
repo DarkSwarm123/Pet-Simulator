@@ -224,17 +224,21 @@ MainTab:CreateToggle({
     CurrentValue = false,
     Flag = "AutoHatchBestEgg",
     Callback = function(Value)
-        starthatch = Value
+        task.spawn(function()
+            while not getgenv().ready do
+                task.wait()
+            end
 
-        if starthatch then
-            task.spawn(function()
+            starthatch = Value
+
+            if starthatch then
                 local ok, err = pcall(Hatch)
                 if not ok then
                     warn("Toggle error:", err)
                     starthatch = false
                 end
-            end)
-        end
+            end
+        end)
     end
 })
 
