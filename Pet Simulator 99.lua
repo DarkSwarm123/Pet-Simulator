@@ -190,8 +190,6 @@ local function disableWorldsAndEnableIncomplete()
 end
 
 local function Hatch()
-    isAnimationEnabled = false
-    frontend.Enabled = false
 
     local hatchCounter = 0
     local lastProgressKey = getProgressKey()
