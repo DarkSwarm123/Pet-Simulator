@@ -211,7 +211,7 @@ frontend.Enabled = false
 
             local Egg = "Infinity Egg"
 
-            task.wait(EggCmds.ComputeDebounce() or 1)
+            task.wait(1)
 
             local success, err = pcall(function()
                 EggCmds.RequestPurchase(Egg, EggCmds.GetMaxHatch())
@@ -251,7 +251,6 @@ MainTab:CreateToggle({
                 local ok, err = pcall(Hatch)
                 if not ok then
                     warn("Toggle error:", err)
-                    starthatch = false
                 end
             end)
         end
