@@ -190,6 +190,9 @@ local function disableWorldsAndEnableIncomplete()
 end
 
 local function Hatch()
+Eggs_PlayOpenAnimation = false
+frontend.Enabled = false
+
 
     local hatchCounter = 0
     local lastProgressKey = getProgressKey()
