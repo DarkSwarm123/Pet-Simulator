@@ -135,6 +135,16 @@ Eggs_PlayOpenAnimation.OnClientEvent:Connect(function(...)
     end
 end)
 
+MainTab:CreateToggle({
+    Name = "Disable Egg Opening Animation",
+    CurrentValue = false,
+    Flag = "DisableEggAnimation",
+    Callback = function(Value)
+        isAnimationEnabled = not Value
+        frontend.Enabled = not Value
+    end
+})
+
 local InfinityEggCmds = require(ReplicatedStorage.Library.Client.InfinityEggCmds)
 local CurrencyCmds = require(ReplicatedStorage.Library.Client.CurrencyCmds)
 
