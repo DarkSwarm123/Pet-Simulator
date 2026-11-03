@@ -263,7 +263,7 @@ MainTab:CreateToggle({
     end
 })
 
-local Event = ReplicatedStorage.Network.CustomEggs_Hatch
+local CustomEggs_Hatch = ReplicatedStorage.Network.CustomEggs_Hatch
 local CustomEggsFolder = workspace.__THINGS.CustomEggs
 local customEggHatch = false
 local hatchThread = nil
@@ -293,13 +293,13 @@ hatchThread = task.spawn(function()
         local nearest = getNearestCustomEgg()
         if nearest then
             local ok, err = pcall(function()
-                Event:InvokeServer(nearest.Name, 89)
+                CustomEggs_Hatch:InvokeServer(nearest.Name, EggCmds.GetMaxHatch())
             end)
             if not ok then
-                warn("Błąd hatchowania:", err)
+                warn("Hatch error:", err)
                 task.wait(2)
             else
-                task.wait(1)
+                task.wait(1.5)
             end
         else
             task.wait(2)
