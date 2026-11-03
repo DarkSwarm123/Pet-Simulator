@@ -257,6 +257,65 @@ MainTab:CreateToggle({
     end
 })
 
+local Event = ReplicatedStorage.Network.CustomEggs_Hatch
+local CustomEggsFolder = workspace.__THINGS.CustomEggs
+local customEggHatch = false
+local hatchThread = nil
+local function getNearestCustomEgg()
+    local char = LocalPlayer.Character
+    local hrp = char and char:FindFirstChild("HumanoidRootPart")
+    if not hrp then return nil, math.huge end
+local playerPos = hrp.Position
+local closest, closestDist = nil, math.huge
+
+for _, egg in ipairs(CustomEggsFolder:GetChildren()) do
+    if not egg:IsA("Model") then continue end
+    local dist = (egg:GetPivot().Position - playerPos).Magnitude
+    if dist < closestDist then
+        closestDist = dist
+        closest = egg
+    end
+end
+
+return closest, closestDist
+
+end
+local function startHatchLoop()
+    if hatchThread then return end
+hatchThread = task.spawn(function()
+    while customEggHatch do
+        local nearest = getNearestCustomEgg()
+        if nearest then
+            local ok, err = pcall(function()
+                Event:InvokeServer(nearest.Name, 89)
+            end)
+            if not ok then
+                warn("Błąd hatchowania:", err)
+                task.wait(2)
+            else
+                task.wait(1)
+            end
+        else
+            task.wait(2)
+        end
+    end
+    hatchThread = nil
+end)
+
+end
+
+MainTab:CreateToggle({
+    Name = "Auto Hatch Nearest Custom Egg",
+    CurrentValue = false,
+    Flag = "AutoCustomEggHatch",
+    Callback = function(Value)
+        customEggHatch = Value
+    if customEggHatch then
+        startHatchLoop()
+    end
+end
+})
+
 local function TeleportToZone(zoneOffset)
     local maxZone = ZoneCmds.GetMaximumZone()
     if not maxZone or not maxZone.ZoneNumber then return end
