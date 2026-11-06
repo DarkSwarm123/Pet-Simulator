@@ -853,7 +853,7 @@ local openSizes = {100, 50, 25, 10, 5, 1}
 
 local bagNames = {
     "Gift Bag", "Large Gift Bag", "Toy Bundle", "Fruit Bundle", "Flag Bundle",
-    "Enchant Bundle", "Large Enchant Bundle", "Potion Bundle", "Large Potion Bundle"
+    "Enchant Bundle", "Large Enchant Bundle", "Potion Bundle", "Large Potion Bundle", "Mini Chest"
 }
 
 for _, name in ipairs(bagNames) do
