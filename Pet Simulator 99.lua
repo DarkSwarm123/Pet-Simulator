@@ -1089,7 +1089,7 @@ end
 
 local advancedFishingEnabled = false
 
-MinigamesTab:CreateToggle({
+# MinigamesTab:CreateToggle({
     Name = "Auto Advanced Fishing",
     CurrentValue = false,
     Callback = function(state)
@@ -1098,11 +1098,6 @@ MinigamesTab:CreateToggle({
         if not advancedFishingEnabled then return end
 
         task.spawn(function()
-            local ReplicatedStorage = game:GetService("ReplicatedStorage")
-            local Workspace = game:GetService("Workspace")
-            local Players = game:GetService("Players")
-            local Network = ReplicatedStorage:WaitForChild("Network")
-            local Player = Players.LocalPlayer
             local rng = Random.new()
 
             local FALLBACK_POS = Vector3.new(1459.0086669921875, 61.62493896484375, -4451.37548828125)
