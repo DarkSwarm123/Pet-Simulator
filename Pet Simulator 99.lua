@@ -1092,7 +1092,6 @@ local advancedFishingEnabled = false
 MinigamesTab:CreateToggle({
     Name = "Auto Advanced Fishing",
     CurrentValue = false,
-    Flag = "AutoAdvancedFishing",
     Callback = function(state)
         advancedFishingEnabled = state
 
