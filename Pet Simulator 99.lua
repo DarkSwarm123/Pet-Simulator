@@ -807,7 +807,7 @@ ItemsTab:CreateToggle({
                         }
 
                         game:GetService("ReplicatedStorage").Network.ForgeMachine_Activate:InvokeServer(unpack(args))
-                        print("✅ Wysłano " .. amountToUse .. " Gift Bag do przetopu")
+                        print("✅ Sent " .. amountToUse .. " Gift Bag to forge")
                         break
                     end
                 end
@@ -1026,12 +1026,12 @@ task.spawn(function()
                     end)
 
                     if success then
-                        print(string.format("✅ Fuzja wysłana: %dx %s (%s)", AMOUNT_TO_USE, petName, GetPetTypeString(bestType)))
+                        print(string.format("✅ Fusion sent: %dx %s (%s)", AMOUNT_TO_USE, petName, GetPetTypeString(bestType)))
                     else
                         warn("❌ Błąd fuzji:", err)
                     end
                 else
-                    print(string.format("ℹ️ Brak peta z ilością ≥ %d", AMOUNT_TO_USE))
+                    print(string.format("ℹ️ Not enought pets to send ≥ %d", AMOUNT_TO_USE))
                 end
             end
         end
