@@ -184,7 +184,7 @@ local function disableWorldsAndEnableIncomplete()
             end)
             task.wait()
         end
-        print(string.format("🎯 Włączono %d niekompletnych jajek.", #incompleteEggs))
+        print(string.format("Enabled %d incomplete eggs: ", #incompleteEggs))
     else
         local bestEgg = allEggs[#allEggs]
         if bestEgg then
@@ -206,7 +206,7 @@ local function Hatch()
             local cost, currency = InfinityEggCmds.GetCost()
 
             if not CurrencyCmds.CanAfford(currency, cost) then
-                warn("❌ Skończyła się waluta! Czekam...")
+                warn("❌ Not enough money!")
                 task.wait(5)
                 continue
             end
@@ -417,7 +417,7 @@ local function setRendering(state)
 
     if setfpscap then
         if state then
-            setfpscap(20)
+            setfpscap(30)
         else
             setfpscap(15)
         end
@@ -457,7 +457,7 @@ OtherTab:CreateToggle({
                 while autoConsume do
                     if MapCmds.IsInDottedBox() and getAmount("Misc","TNT Crate") > 0 then
                         ReplicatedStorage.Network.TNT_Crate_Consume:InvokeServer()
-                        task.wait(5)
+                        task.wait(math.random(5))
                     else
                         task.wait(1)
                     end
