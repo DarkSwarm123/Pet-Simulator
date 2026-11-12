@@ -191,9 +191,9 @@ local function disableWorldsAndEnableIncomplete()
             pcall(function()
                 InfinityEggCmds.SetDisabled(bestEgg._id, false)
             end)
-            print("✅ Wszystko skompletowane – hatchuję najlepsze jajko:", bestEgg._id)
+            print("✅ Starting Best Egg hatch:", bestEgg._id)
         else
-            warn("❌ Brak jajek do hatchowania!")
+            warn("❌ No eggs to hatch!")
         end
     end
 end
@@ -207,7 +207,7 @@ local function Hatch()
 
             if not CurrencyCmds.CanAfford(currency, cost) then
                 warn("❌ Skończyła się waluta! Czekam...")
-                task.wait(10)
+                task.wait(5)
                 continue
             end
 
@@ -223,7 +223,7 @@ local function Hatch()
                 warn("Hatch error:", err)
             end
 
-            if math.random(5) == 5 then
+            if math.random(5) == 1 then
 
                 local currentKey = getProgressKey()
                 if currentKey ~= lastProgressKey then
