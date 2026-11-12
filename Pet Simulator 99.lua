@@ -186,7 +186,6 @@ local function disableWorldsAndEnableIncomplete()
         end
         print(string.format("🎯 Włączono %d niekompletnych jajek.", #incompleteEggs))
     else
-        -- 4. Wszystko skompletowane – włącz TYLKO najlepsze jajko
         local bestEgg = allEggs[#allEggs]
         if bestEgg then
             pcall(function()
@@ -200,10 +199,7 @@ local function disableWorldsAndEnableIncomplete()
 end
 
 local function Hatch()
-    local hatchCounter = 0
     local lastProgressKey = getProgressKey()
-
-    disableWorldsAndEnableIncomplete()
 
     local ok, err = pcall(function()
         while starthatch do
@@ -227,9 +223,7 @@ local function Hatch()
                 warn("Hatch error:", err)
             end
 
-            hatchCounter += 1
-            if hatchCounter >= 10 then
-                hatchCounter = 0
+            if math.random(10) == 10 then
 
                 local currentKey = getProgressKey()
                 if currentKey ~= lastProgressKey then
