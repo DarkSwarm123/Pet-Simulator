@@ -223,7 +223,7 @@ local function Hatch()
                 warn("Hatch error:", err)
             end
 
-            if math.random(10) == 10 then
+            if math.random(5) == 5 then
 
                 local currentKey = getProgressKey()
                 if currentKey ~= lastProgressKey then
