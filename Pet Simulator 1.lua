@@ -168,7 +168,7 @@ local Hats = {
 }
 
 local function AutoHatFarm()
-    if hatFarmRunning then return end -- nie uruchamiaj drugi raz
+    if hatFarmRunning then return end
     hatFarmRunning = true
 
     local present, id
@@ -303,7 +303,6 @@ end
 local function BuyEgg(tier)
     local success, result = workspace["__REMOTES"]["Game"]["Shop"]:InvokeServer("Buy", "Eggs", tier, Settings["Auto Egg"]["Triple Egg Open"])
     if not success then
-        -- Powiadomienie przez Rayfield
         Rayfield:Notify({
             Title = "❌ Nieudany zakup jajka",
             Content = tostring(result),
@@ -312,32 +311,28 @@ local function BuyEgg(tier)
         return false
     end
 
-    -- Obsługa automatycznego usuwania
     if AutoDeletersRunning and typeof(result) == "table" then
         local hatchData = {}
 
         if typeof(result[1]) == "table" and typeof(result[1][1]) == "table" then
-            -- triple hatch
             for _, sub in ipairs(result) do
                 for _, pet in ipairs(sub) do
                     table.insert(hatchData, pet)
                 end
             end
         else
-            -- single hatch
             for _, pet in ipairs(result) do
                 table.insert(hatchData, pet)
             end
         end
 
-        -- Sprawdź i usuń niechciane pety
         local ToDelete = {}
         for _, pet in ipairs(hatchData) do
             if CheckDeleters(pet.n) then
                 table.insert(ToDelete, pet.id)
-                warn("🗑️ Usuwam: " .. (Directory.Pets[pet.n] and Directory.Pets[pet.n].DisplayName or tostring(pet.n)))
+                warn("🗑️ Deleting: " .. (Directory.Pets[pet.n] and Directory.Pets[pet.n].DisplayName or tostring(pet.n)))
             else
-                warn("✅ Zachowano: " .. (Directory.Pets[pet.n] and Directory.Pets[pet.n].DisplayName or tostring(pet.n)))
+                warn("✅ Kept: " .. (Directory.Pets[pet.n] and Directory.Pets[pet.n].DisplayName or tostring(pet.n)))
             end
         end
 
@@ -412,7 +407,6 @@ local function AutoCombineCheck()
         end
     end
 
-    -- GOLD
     for PetN, Amount in pairs(GoldTable) do
         if Amount >= 10 then
             local GoldPets = {}
@@ -431,7 +425,6 @@ local function AutoCombineCheck()
         end
     end
 
-    -- RAINBOW
     for PetN, Amount in pairs(RainbowTable) do
         if Amount >= 7 then
             local RainbowPets = {}
@@ -450,7 +443,6 @@ local function AutoCombineCheck()
         end
     end
 
-    -- DARK MATTER
     for PetN, Amount in pairs(DarkMatterTable) do
         if Amount >= 5 then
             local DMTable = {}
@@ -521,8 +513,8 @@ SettingsTab:CreateToggle({
         if Value then
             task.spawn(function()
                 while AutoCombineRunning do
-                    AutoCombineCheck() -- Główna funkcja Auto Combine
-                    task.wait(2) -- Czas oczekiwania między iteracjami
+                    AutoCombineCheck()
+                    task.wait(2)
                 end
             end)
         end
@@ -552,7 +544,7 @@ end
 local FarmLvLStart = false
 local farmLvlTaskRunning = false
 local farmLvlTask
-local LVLTOCREARING = 50e6
+local LVLTOCLEAR = 50e6
 
 local BigTargets = {
     ["Christmas2 Small Chest"] = true,
@@ -600,7 +592,7 @@ local function UpdateLvLPetTable()
             local level = GetPetLevelWithHat(pet, Hats)
             if level and level == level then
                 local data = { ID = tonumber(pet.id), LEVEL = level }
-                if level > LVLTOCREARING then
+                if level > LVLTOCLEAR then
                     table.insert(HighPets, data)
                 else
                     table.insert(LowPets, data)
@@ -620,7 +612,7 @@ local function AssignAndMine(pet, coin)
             pcall(function()
                 workspace["__REMOTES"]["Game"]["Coins"]:FireServer("Mine", coin.Name, pet.LEVEL, pet.ID)
             end)
-            task.wait(0.25)
+            task.wait(0.2)
         end
         ActivePets[pet.ID] = nil
         AssignedCoins[coin] = nil
@@ -707,7 +699,7 @@ local function FarmCoin(Coin)
         for _, pet in ipairs(PetTable) do
             workspace["__REMOTES"]["Game"]["Coins"]:FireServer("Mine", Coin.Name, pet.LEVEL, pet.ID)
         end
-        task.wait(0.25)
+        task.wait(0.2)
         if not Coin:IsDescendantOf(workspace["__THINGS"].Coins) then
             break
         end
@@ -760,7 +752,7 @@ game:GetService("Players").LocalPlayer.Idled:Connect(function()
     local VirtualUser = game:service('VirtualUser')
     VirtualUser:CaptureController()
     VirtualUser:ClickButton2(Vector2.new(0, 0))
-    print("Anti-AFK: Zapobieganie rozłączeniu.")
+    print("Anti-AFK: Tap")
 	end)
 	
 	Rayfield:LoadConfiguration()
@@ -773,7 +765,7 @@ task.delay(0.2, function()
     end
 end)
 
-task.delay(0.4, function()
+task.delay(0.5, function()
     for coinName, toggle in pairs(CoinToggles) do
         if toggle.CurrentValue then
             toggle.Callback(true)
