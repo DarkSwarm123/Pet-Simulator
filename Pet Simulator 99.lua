@@ -211,12 +211,10 @@ local function Hatch()
                 continue
             end
 
-            local Egg = "Infinity Egg"
-
             task.wait(1)
 
             local success, err = pcall(function()
-                EggCmds.RequestPurchase(Egg, EggCmds.GetMaxHatch())
+                EggCmds.RequestPurchase("Infinity Egg", EggCmds.GetMaxHatch())
             end)
 
             if not success then
